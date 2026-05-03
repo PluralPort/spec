@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title | default: site.title }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/styles.css">
+  </head>
+  <body>
+    <main{% if page.main_class %} class="{{ page.main_class }}"{% endif %}>
+      <nav class="top">
+        <a href="index.html"{% if page.nav_active == 'home' %} aria-current="page"{% endif %}>openplural</a>
+        <a href="spec.html"{% if page.nav_active == 'spec' %} aria-current="page"{% endif %}>spec</a>
+        <a href="apps.html"{% if page.nav_active == 'apps' %} aria-current="page"{% endif %}>apps</a>
+        <a href="adopt.html"{% if page.nav_active == 'adopt' %} aria-current="page"{% endif %}>adopt</a>
+        <a href="proposal.html"{% if page.nav_active == 'proposal' %} aria-current="page"{% endif %}>proposal.md</a>
+      </nav>
+      {{ content }}
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        {% if page.footer == 'home' %}
+        <p>This is a static page. No runtime, no telemetry, no account. The site is built from markdown files in this repo.</p>
+        <details>
+          <summary>upstream sources we read while writing this</summary>
+          <ul class="sources">
+            <li><a href="https://github.com/ApparyllisOrg/SimplyPluralApi">SimplyPluralApi</a></li>
+            <li><a href="https://apparyllis.com/simply-plural-will-be-discontinued/">Simply Plural discontinuation notice</a></li>
+            <li><a href="https://github.com/PluralKit/PluralKit">PluralKit source</a></li>
+            <li><a href="https://pluralkit.me/api/">PluralKit API docs</a></li>
+            <li><a href="https://github.com/TheHanyou/Plural-Star">Plural Star source</a></li>
+            <li><a href="https://pluralspace.app/">PluralSpace website</a></li>
+            <li><a href="https://github.com/team-crystalline/Lighthouse">Lighthouse source</a></li>
+            <li><a href="https://github.com/sheaf-project/sheaf">Sheaf source</a></li>
+            <li><a href="https://github.com/FreckleQueens/OpenSelves">OpenSelves source</a></li>
+            <li><a href="https://github.com/NyaomiDEV/Ampersand">Ampersand source</a></li>
+            <li><a href="https://octocon.app/docs">Octocon docs</a></li>
+          </ul>
+        </details>
+        {% else %}
+        <div class="footer-links">
+          <a href="index.html">home</a>
+          <a href="apps.html">apps</a>
+          <a href="spec.html">spec</a>
+          <a href="adopt.html">adopt</a>
+          <a href="proposal.html">proposal</a>
+        </div>
+        {% endif %}
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,149 @@
+---
+title: "OpenPlural Draft API Spec"
+nav_active: spec
+---
+
+<section>
+  <h1>Spec hub</h1>
+  <p class="sub"><span class="draft">draft v0.1</span>What lives on this page: data conventions, the top-level envelope, and the shared fragments (<code>source_refs</code>, <code>privacy</code>, <code>warnings</code>) that show up on most records.</p>
+
+  <p>Field-by-field detail lives on three subpages:</p>
+  <ul>
+    <li><a href="spec-records.html">Records</a> — 17 core records with field tables.</li>
+    <li><a href="spec-fronting.html">Fronting</a> — periods, events, comments, assignments.</li>
+    <li><a href="spec-modules.html">Modules &amp; contract</a> — chat, boards, relationships, optional modules, importer contract.</li>
+  </ul>
+</section>
+
+<section id="conventions">
+  <div class="section-head">
+    <h2>Data conventions</h2>
+    <p>Six rules. Skim once; they're assumed everywhere else.</p>
+  </div>
+  <div class="module-grid">
+    <article class="module-card">
+      <h3>JSON canonical</h3>
+      <p>The interchange format is JSON. Not doing protobuf or CBOR in v0.1 — every researched app already speaks JSON, nothing else does.</p>
+    </article>
+    <article class="module-card">
+      <h3>UTC timestamps</h3>
+      <p>Timestamps are ISO-8601 in UTC. Apps with source timezones can preserve them in <code>extensions</code>.</p>
+    </article>
+    <article class="module-card">
+      <h3>File-local IDs</h3>
+      <p>Every record has a file-local <code>id</code>. Prefer UUIDv7 or ULID; importers must not assume an algorithm.</p>
+    </article>
+    <article class="module-card">
+      <h3>Source preservation</h3>
+      <p>Original IDs go in <code>source_refs</code>. App-specific fields go in namespaced <code>extensions</code>.</p>
+    </article>
+    <article class="module-card">
+      <h3>Modules are optional</h3>
+      <p>Importers should accept any subset of modules. The <code>capabilities.modules</code> array declares what a file populates.</p>
+    </article>
+    <article class="module-card">
+      <h3>Loss is reported</h3>
+      <p>Skipped or degraded data must surface in <code>warnings</code> at export time and in the import result at import time.</p>
+    </article>
+  </div>
+</section>
+
+<section id="envelope">
+  <div class="section-head">
+    <h2>Top-level envelope</h2>
+    <p>What goes at the top of every file. Producer info, a <code>capabilities</code> array so importers don't have to scan, and the slots that hold each module's records.</p>
+  </div>
+  <div class="code-grid">
+    <div class="schema-map" aria-label="Envelope module map">
+      <div class="schema-nodes">
+        <div class="schema-node core">
+          <b>Core arrays</b>
+          <span><code>systems</code>, <code>members</code>, <code>groups</code>, <code>group_memberships</code>, <code>taxonomy_terms</code>, <code>taxonomy_assignments</code>, <code>custom_fields</code>, <code>custom_field_values</code>, <code>notes</code>, <code>assets</code>.</span>
+        </div>
+        <div class="schema-node front">
+          <b>Fronting arrays</b>
+          <span><code>front_periods</code>, <code>front_events</code>, <code>front_comments</code>.</span>
+        </div>
+        <div class="schema-node optional">
+          <b>Optional modules</b>
+          <span><code>chat</code>, <code>boards</code>, <code>relationships</code>, <code>polls</code>, <code>reminders</code>, <code>habits</code>, <code>proxy</code>, <code>sharing</code>, <code>safety</code>.</span>
+        </div>
+        <div class="schema-node extension">
+          <b>Preservation</b>
+          <span><code>source_refs</code>, <code>extensions</code>, <code>warnings</code>, raw app IDs.</span>
+        </div>
+      </div>
+    </div>
+    <pre><code>{
+  "openplural_version": "0.1",
+  "exported_at": "2026-04-29T18:00:00Z",
+  "producer": {
+    "app": "Sheaf",
+    "app_version": "1.4.2",
+    "exporter_version": "0.1.0",
+    "app_id": "sheaf"
+  },
+  "capabilities": {
+    "modules": [
+"systems", "members", "groups", "taxonomy",
+"custom_fields", "front_periods", "notes", "assets"
+    ]
+  },
+  "systems": [],
+  "members": [],
+  "groups": [],
+  "group_memberships": [],
+  "taxonomy_terms": [],
+  "taxonomy_assignments": [],
+  "custom_fields": [],
+  "custom_field_values": [],
+  "front_periods": [],
+  "front_events": [],
+  "front_comments": [],
+  "notes": [],
+  "assets": [],
+  "chat": null,
+  "extensions": {},
+  "warnings": []
+}</code></pre>
+  </div>
+</section>
+
+<section id="shared-records">
+  <div class="section-head">
+    <h2>Shared record fragments</h2>
+    <p>These can appear on any record. They're the main mechanism for safe conversion and future recovery. Full field tables in <a href="spec-records.html#envelope-helpers">records</a>.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fragment</th><th>Shape</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>source_refs</code></td><td><code>SourceRef[]</code></td><td>Retains original app IDs for reconciliation, round-trips, dedupe, and import auditing.</td></tr>
+        <tr><td><code>extensions</code></td><td><code>Record&lt;string, unknown&gt;</code></td><td>Preserves source-specific fields without forcing every app to understand them.</td></tr>
+        <tr><td><code>privacy</code></td><td><code>Privacy</code></td><td>A conservative common privacy level plus the original source detail.</td></tr>
+        <tr><td><code>warnings</code></td><td><code>Warning[]</code></td><td>Documents skipped, degraded, preserved-only, or repaired data.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="extension-ids">
+  <div class="section-head">
+    <h2>Registered app IDs</h2>
+    <p>Use these short IDs in <code>SourceRef.app</code> and <code>extensions</code> namespaces.</p>
+  </div>
+  <div class="panel">
+    <p style="margin: 0 0 8px;">
+      <code>prism</code>, <code>sheaf</code>, <code>simply_plural</code>, <code>pluralkit</code>,
+      <code>octocon</code>, <code>plural_star</code>, <code>lighthouse</code>, <code>openselves</code>,
+      <code>ampersand</code>, <code>pluralspace</code>.
+    </p>
+    <p style="margin: 0;">
+      New IDs are registered by PR to the OpenPlural repo — maintainers keep the canonical list. Apps
+      that want a private namespace without registration can use reverse-DNS keys (e.g.
+      <code>com.example.app</code>) inside <code>extensions</code> instead. The <code>openplural</code>
+      namespace is reserved for spec-level extensions.
+    </p>
+  </div>
+</section>
+

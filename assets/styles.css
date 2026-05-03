@@ -1,0 +1,456 @@
+/* OpenPlural — shared stylesheet. Mono RFC, single column. */
+
+:root {
+  color-scheme: light;
+  --bg: #f7f4ee;
+  --ink: #232522;
+  --muted: #6a6f64;
+  --line: #d8d1c3;
+  --line-soft: #e6e0d2;
+  --accent: #9b6b1d;
+  --code-bg: #ece7d8;
+  --row-tint: rgba(216, 209, 195, 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --bg: #151710;
+    --ink: #f3efe4;
+    --muted: #a9a290;
+    --line: #3d3b2f;
+    --line-soft: #2a2920;
+    --accent: #d5a850;
+    --code-bg: #25271c;
+    --row-tint: rgba(91, 88, 70, 0.22);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14.5px;
+  line-height: 1.65;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem 6rem;
+}
+
+/* index.html uses a narrower column for prose */
+main.prose { max-width: 38rem; }
+
+/* Inline top nav */
+nav.top {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 3.5rem;
+}
+nav.top a { margin-right: 1.25rem; }
+nav.top a[aria-current="page"] { color: var(--ink); }
+
+/* Headings */
+h1 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.005em;
+}
+.sub {
+  color: var(--muted);
+  margin: 0 0 2.5rem;
+}
+h2 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 3rem 0 0.75rem;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+h2::before {
+  content: "§ ";
+  color: var(--muted);
+  font-weight: 400;
+}
+h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 2rem 0 0.5rem;
+  letter-spacing: 0;
+}
+
+/* Paragraphs and lists */
+p { margin: 0 0 1rem; }
+ul, ol {
+  padding-left: 1.25rem;
+  margin: 0 0 1rem;
+}
+li { margin-bottom: 0.4rem; }
+strong, b { font-weight: 600; }
+em, i { font-style: italic; }
+
+/* Links */
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+a:hover { color: var(--accent); }
+
+/* Code */
+code {
+  font-family: inherit;
+  background: var(--code-bg);
+  padding: 0.05rem 0.3rem;
+  border-radius: 2px;
+  font-size: 0.92em;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  padding: 1rem 1.25rem;
+  margin: 1rem 0 1.5rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  border-radius: 2px;
+}
+pre code { background: transparent; padding: 0; }
+
+/* Horizontal rule */
+hr {
+  border: 0;
+  border-top: 1px dashed var(--line);
+  margin: 3rem 0;
+}
+
+/* Tables — bare, monospace, subtle row tint for long ones */
+.table-wrap { overflow-x: auto; margin: 0 0 1.5rem; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+th {
+  color: var(--muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--line);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+  font-size: 0.78rem;
+}
+tbody tr:nth-child(odd) td { background: var(--row-tint); }
+tr:last-child td { border-bottom: 0; }
+table code { background: transparent; padding: 0; }
+
+/* Column balancing: short columns shrink to content, long columns absorb the rest.
+   The width:1% trick forces a column to render at minimum content width in auto-layout. */
+
+/* Field tables (spec subpages): field | type | required | notes
+   Field (identifier) and Required (yes/no) shrink and never wrap.
+   Type wraps so long enum unions like "a" | "b" | "c" don't blow out the column.
+   Notes absorbs the slack. */
+.field-table th:nth-child(1), .field-table td:nth-child(1),
+.field-table th:nth-child(3), .field-table td:nth-child(3) {
+  width: 1%;
+  white-space: nowrap;
+}
+.field-table th:nth-child(2), .field-table td:nth-child(2) {
+  width: 1%;
+  white-space: normal;
+}
+.field-table th:nth-child(4), .field-table td:nth-child(4) {
+  white-space: normal;
+}
+
+/* Adopt mapping cards: source field | OpenPlural target | status
+   Status is a single tag; let the target column breathe. */
+.adopt-card table th:nth-child(3),
+.adopt-card table td:nth-child(3) {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+.adopt-card table th:nth-child(1),
+.adopt-card table td:nth-child(1) {
+  white-space: nowrap;
+}
+
+/* Status tags should never wrap regardless of column */
+table .tag { white-space: nowrap; }
+
+/* Generic fallback: the last column of any non-classified table absorbs slack */
+.table-wrap > table:not(.field-table) th:last-child,
+.table-wrap > table:not(.field-table) td:last-child {
+  width: auto;
+}
+
+/* Bracketed status labels — replace colored chips */
+.tag {
+  font-size: 0.8rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tag::before { content: "["; }
+.tag::after { content: "]"; }
+
+/* Callouts — left rule only, no fill */
+.callout {
+  border-left: 2px solid var(--accent);
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 1rem 0 1.5rem;
+  color: var(--ink);
+}
+.callout p { margin: 0; }
+.callout p + p { margin-top: 0.5rem; }
+
+.moved-stub {
+  border-left: 2px solid var(--line);
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 1rem 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.moved-stub b { color: var(--ink); font-weight: 600; }
+.moved-stub b::after { content: " — "; color: var(--muted); font-weight: 400; }
+
+/* Page TOC — collapsed details at top of long pages */
+details.toc {
+  margin: 0 0 2.5rem;
+  font-size: 0.85rem;
+}
+details.toc summary {
+  cursor: pointer;
+  color: var(--muted);
+  list-style: none;
+  padding: 0.25rem 0;
+}
+details.toc summary::-webkit-details-marker { display: none; }
+details.toc summary::before {
+  content: "▸ ";
+  display: inline-block;
+  width: 1.2em;
+  color: var(--muted);
+}
+details.toc[open] summary::before { content: "▾ "; }
+details.toc ol, details.toc ul {
+  margin: 0.5rem 0 0;
+  padding-left: 2.4rem;
+  list-style: none;
+}
+details.toc li { margin-bottom: 0.25rem; }
+details.toc li::before { content: "· "; color: var(--muted); }
+
+/* Type legend on records page — simple two-column dl-like layout */
+.types-legend {
+  margin: 1rem 0 2rem;
+  padding: 1rem 1.25rem;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  font-size: 0.82rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.4rem 1.5rem;
+}
+.types-legend > div { display: flex; gap: 0.6rem; align-items: baseline; }
+.types-legend b { color: var(--ink); font-weight: 600; min-width: 6rem; }
+.types-legend span { color: var(--muted); }
+
+/* Records — slight visual break between each */
+.record {
+  margin-top: 2.5rem;
+  scroll-margin-top: 2rem;
+}
+.record h3 {
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+}
+.record .record-blurb {
+  margin: 0 0 0.8rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Enum sidebar — inline, not a card */
+.enum-sidebar {
+  border-left: 2px solid var(--line);
+  padding: 0.25rem 0 0.25rem 1rem;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.enum-sidebar b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 0.25rem; }
+
+/* App / adopt blocks — flatten cards to plain sections */
+.app-block,
+.adopt-card,
+.who-card,
+.module-card,
+.maintainer-card,
+.message-card,
+.cta-card,
+.summary-tile,
+.panel,
+.next-step,
+.stat {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+.app-block { margin-top: 2rem; }
+.app-block h3,
+.adopt-card h3,
+.who-card h3,
+.message-card h3,
+.module-card h3,
+.maintainer-card b { font-size: 0.92rem; }
+.app-sub,
+.adopt-sub { color: var(--muted); margin: 0 0 0.8rem; }
+
+/* "Status" tag next to adopter names — make it bracketed */
+.who-status {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 0.4rem;
+}
+.who-status::before { content: "["; }
+.who-status::after { content: "]"; }
+
+.who-links a { margin-right: 1rem; font-size: 0.85rem; }
+.app-meta { display: block; margin-top: 0.5rem; font-size: 0.85rem; }
+.app-meta a { margin-right: 1rem; }
+
+/* Step numbers (adopt page) — inline, no card */
+.next-step { display: block; }
+.step-number {
+  display: inline-block;
+  color: var(--muted);
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+.step-number::before { content: "["; }
+.step-number::after { content: "]"; }
+
+/* Section heads — flatten to just heading + paragraph */
+.section-head { display: block; margin-bottom: 0.75rem; }
+.section-head h2 { margin-bottom: 0.5rem; }
+.section-head p { color: var(--muted); margin: 0 0 1rem; }
+
+/* Footer */
+footer {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 4rem auto 0;
+  max-width: 56rem;
+  padding: 0 1.5rem 4rem;
+}
+footer .footer-inner { border-top: 1px dashed var(--line); padding-top: 1.5rem; }
+footer a { color: var(--muted); text-decoration-color: var(--line); }
+footer a:hover { color: var(--accent); }
+.footer-links { display: block; }
+.footer-links a { margin-right: 1.25rem; }
+footer details { margin-top: 1rem; }
+footer summary { cursor: pointer; }
+footer ul.sources {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.75rem;
+  columns: 2;
+  column-gap: 1.5rem;
+  font-size: 0.78rem;
+}
+footer ul.sources li { margin-bottom: 0.25rem; break-inside: avoid; }
+
+/* Draft badge — inline, no chip */
+.draft {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 0.05rem 0.4rem;
+  border-radius: 2px;
+  margin-right: 0.4rem;
+}
+
+/* Status line on subpages — flatten badges to inline muted text */
+.status-line {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: 0 0 2rem;
+}
+.status-line .badge {
+  border: 1px solid var(--line);
+  padding: 0.05rem 0.4rem;
+  border-radius: 2px;
+  margin-right: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* Lede paragraph (subpage intros) */
+.lede {
+  color: var(--ink);
+  margin: 0 0 1.5rem;
+}
+.muted-copy { color: var(--muted); margin: 0 0 1.5rem; }
+
+/* Schema map (spec hub) — flatten to a definition list */
+.schema-map { padding: 0; background: none; border: 0; box-shadow: none; }
+.schema-nodes { display: block; }
+.schema-node {
+  display: block;
+  background: none;
+  border: 0;
+  border-left: 2px solid var(--line);
+  padding: 0.25rem 0 0.5rem 1rem;
+  margin: 0 0 0.75rem;
+}
+.schema-node b { display: block; font-weight: 600; margin-bottom: 0.2rem; }
+.schema-node span { color: var(--muted); font-size: 0.88rem; display: block; }
+
+/* Reset color overrides from old system */
+.core, .front, .optional, .extension {
+  background: none !important;
+  border-color: var(--line) !important;
+}
+
+/* Field tables — col 2 (Type) is muted to differentiate from field name */
+.field-table td:nth-child(2) { color: var(--muted); }
+.req-yes { color: var(--ink); font-weight: 600; }
+.req-no { color: var(--muted); }
+.req-yes::before, .req-no::before { content: ""; }
+
+/* Spec page two-column → single column */
+.spec-page { display: block; }
+.spec-page > div { display: block; }
+.page-toc { display: none; }
+
+/* Print */
+@media print {
+  body { background: white; color: black; }
+  nav.top, footer details { display: none; }
+}

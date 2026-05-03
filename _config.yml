@@ -1,0 +1,22 @@
+title: OpenPlural
+description: A draft proposal for a shared plurality data shape
+
+exclude:
+  - LICENSE
+  - .gitattributes
+  - .gitignore
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+# kramdown is the Pages default; explicit for clarity.
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
