@@ -43,14 +43,14 @@ nav_active: apps
         </tr>
         <tr>
           <td><b>Sheaf</b></td>
-          <td><code>/v1/export</code> JSON v1</td>
+          <td><code>/v1/export</code> JSON v2; async zip backup with images</td>
           <td><span class="tag yes">Yes</span></td>
           <td>Co-front intervals</td>
           <td>Hierarchical groups + tags</td>
           <td>Definitions and values</td>
-          <td>Model exists, not exported</td>
+          <td>Journals + revision history</td>
           <td><span class="tag no">No</span></td>
-          <td>Privacy enum, uploaded files model</td>
+          <td>Avatar URLs + uploaded-file inventory; privacy, safety, watch-token config</td>
         </tr>
         <tr>
           <td>PluralSpace</td>
@@ -181,8 +181,9 @@ nav_active: apps
     <h3>Sheaf <span class="who-status">Adopter</span></h3>
     <p class="app-sub">
       FastAPI/PostgreSQL app with application-level encryption. Already exposes <code>/v1/export</code>
-      returning JSON v1 with system, members, fronts, groups, tags, and custom fields. Journals exist
-      in the model but aren't yet in the export.
+      returning JSON v2 with system, members, fronts, groups, tags, custom fields, journals,
+      revision history, watch-token notification config, and uploaded-file inventory. A separate
+      async export job also packages image bytes into a zip.
     </p>
     <div class="table-wrap">
       <table>
@@ -194,6 +195,8 @@ nav_active: apps
           <tr><td><code>groups[]</code> with <code>parent_id</code> + inline <code>member_ids</code></td><td><a href="spec-records.html#group">Group</a> + <a href="spec-records.html#groupmembership">GroupMembership</a></td></tr>
           <tr><td><code>tags[]</code> with inline <code>member_ids</code></td><td><a href="spec-records.html#taxonomyterm">TaxonomyTerm</a> (<code>kind: "tag"</code>) + <a href="spec-records.html#taxonomyassignment">TaxonomyAssignment</a></td></tr>
           <tr><td><code>custom_fields[]</code> with nested <code>values</code></td><td><a href="spec-records.html#customfielddefinition">CustomFieldDefinition</a> + <a href="spec-records.html#customfieldvalue">CustomFieldValue</a></td></tr>
+          <tr><td><code>journals[]</code></td><td><a href="spec-records.html#note">Note</a></td></tr>
+          <tr><td><code>revisions[]</code>, <code>watch_tokens[]</code>, sync <code>uploaded_files[]</code></td><td>Best preserved in <code>extensions</code> today; the async zip is the better source for portable <a href="spec-records.html#asset">Asset</a> records</td></tr>
         </tbody>
       </table>
     </div>

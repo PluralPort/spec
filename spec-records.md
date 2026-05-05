@@ -441,7 +441,7 @@ nav_active: spec
             <tbody>
               <tr><td>id</td><td>UUID</td><td class="req-yes">yes</td><td></td></tr>
               <tr><td>system_id</td><td>UUID</td><td class="req-yes">yes</td><td></td></tr>
-              <tr><td>member_id</td><td>UUID | null</td><td class="req-no">no</td><td>Null for system-wide or communal entries.</td></tr>
+              <tr><td>member_id</td><td>UUID | null</td><td class="req-no">no</td><td>Primary subject member for per-member entries. Null for system-wide entries; communal or multi-member journals may need a future explicit subject-members field.</td></tr>
               <tr><td>title</td><td>string | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>body</td><td>string</td><td class="req-yes">yes</td><td>Markdown unless flagged otherwise.</td></tr>
               <tr><td>created_at</td><td>ISO8601</td><td class="req-yes">yes</td><td></td></tr>
@@ -458,6 +458,7 @@ nav_active: spec
             </tbody>
           </table>
         </div>
+        <div class="callout mt-14"><p><b>Open design question:</b> <code>Note</code> currently collapses member notes, per-member journals, and communal journals into one record, with <code>member_id</code> meaning the primary subject member and <code>author_member_ids</code> meaning who wrote it. That's enough for Sheaf's current journal export, but apps like Lighthouse and Octocon suggest a possible future additive field such as <code>subject_member_ids</code> if multi-member journal scoping needs to become first-class. Splitting journals into a wholly separate core record looks less attractive than making note subject-scoping more explicit.</p></div>
       </article>
 
       <article class="record" id="asset">

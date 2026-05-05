@@ -399,6 +399,8 @@ This maps well to Prism's newer comments and can still reference Simply Plural f
 
 This can represent Prism notes, Simply Plural notes, Plural Star journals, Lighthouse journal posts, Sheaf journal entries, and Ampersand journal posts. Apps with separate "member notes" versus "journal entries" can set `extensions.openplural.note_kind`.
 
+One thing still worth pressure-testing with adopters: `member_id` currently means "the primary subject member this entry belongs to", while `author_member_ids` means who wrote it. That maps cleanly to Sheaf's current per-member journals, but communal or multi-member journal systems may eventually justify an additive `subject_member_ids` field. That seems like a cleaner evolution than splitting journals into a separate top-level core record.
+
 ## Assets
 
 ```json

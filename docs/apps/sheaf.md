@@ -5,26 +5,35 @@
 Sources:
 
 - Repository: https://github.com/sheaf-project/sheaf
+- Export route: `sheaf/api/v1/export.py`
+- Async export builder: `sheaf/services/export_builder.py`
+- Sheaf-import endpoints: `sheaf/api/v1/sheaf_import.py`, `sheaf/services/sheaf_import.py`
+- Coverage: `tests/test_export.py`, `tests/test_account_export_completeness.py`
+- Changelog: `CHANGELOG.md`
 
 ## Storage And API Shape
 
-Sheaf is a FastAPI/PostgreSQL application. It uses SQLAlchemy models and application-level encryption for sensitive member/journal content.
+Sheaf is a FastAPI/PostgreSQL application. It uses SQLAlchemy models and application-level encryption for sensitive member, journal, revision, and notification-secret content.
 
-The current `/v1/export` route returns JSON `version: "1"`.
+The current sync `/v1/export` route returns JSON `version: "2"`. There is also an async `POST /v1/export/jobs` flow that writes a zip containing the same `export.json` plus `images/<key>` blobs for uploaded files.
 
 ```json
 {
-  "version": "1",
+  "version": "2",
   "system": {},
   "members": [],
   "fronts": [],
   "groups": [],
   "tags": [],
-  "custom_fields": []
+  "custom_fields": [],
+  "journals": [],
+  "revisions": [],
+  "watch_tokens": [],
+  "uploaded_files": []
 }
 ```
 
-If a user has no system, export returns `system: null` and empty arrays. The inspected no-system branch uses `fields` while the normal export uses `custom_fields`, which looks like an edge-case naming inconsistency to account for in importers.
+If a user has no system, export returns `system: null` and empty arrays for every top-level collection above. The older v1 `fields` vs `custom_fields` inconsistency is gone in the current source: the empty branch now also uses `custom_fields`.
 
 ## Records
 
@@ -37,13 +46,22 @@ If a user has no system, export returns `system: null` and empty arrays. The ins
 - `privacy`: `public`, `friends`, or `private`.
 - `date_format`: `dmy`, `mdy`, or `ymd`.
 - `replace_fronts_default`: whether starting a front ends open fronts by default.
-- System Safety settings for destructive actions:
-  - Auth tier (`none`, `password`, `totp`, `both`).
-  - Grace period days.
-  - Per-category toggles for members, groups, tags, fields, fronts, journals, images.
-- Journal retention overrides.
+- `delete_confirmation`: auth tier enum reused by System Safety (`none`, `password`, `totp`, `both`).
+- System Safety settings:
+  - `grace_period_days`.
+  - Per-category toggles for `members`, `groups`, `tags`, `fields`, `fronts`, `journals`, `images`, `revisions`, and `notifications`.
+  - `auto_pin_first_revision`.
+- Retention overrides:
+  - `journal_max_revisions`.
+  - `journal_max_revision_days`.
+  - `pinned_revision_max_per_target`.
 
-The export route includes only profile fields: id, name, description, tag, avatar URL, color, privacy.
+Current export includes both profile fields and these preference/safety/retention blocks:
+
+- `id`, `name`, `description`, `tag`, `avatar_url`, `color`, `privacy`.
+- `replace_fronts_default`, `date_format`, `delete_confirmation`.
+- `safety`.
+- `retention`.
 
 ### Members
 
@@ -132,27 +150,78 @@ Export nests values inside each field definition:
 }
 ```
 
-### Journals And Files
+### Journals
 
-Sheaf has models for journals and uploaded files, but the current export route doesn't include them.
+`JournalEntry` is now in `/v1/export`:
 
-`JournalEntry` includes:
+- `id`.
+- `member_id` or null for system-wide entries.
+- Decrypted `title`, `body`.
+- `visibility`.
+- `author_user_id`.
+- Frozen `author_member_ids`, `author_member_names`.
+- `image_keys`.
+- `created_at`, `updated_at`.
 
-- System/member association.
-- Encrypted title/body.
-- Visibility.
-- Fallback author user.
-- Frozen author member ID/name snapshot.
-- Image storage keys.
-- Revision retention support via services.
+Important nuance: the current journal model only actively uses `visibility: "system"`; other enum-ish values are reserved in the model for later.
 
-`UploadedFile` includes:
+### Revisions
 
-- User ID, storage key, purpose, content type, size, created time.
+`ContentRevision` is also exported now. This is edit history for markdown-bodied content, currently:
 
-### Client Settings
+- `target_type: "journal_entry" | "member_bio"`.
+- `target_id`.
+- `user_id`.
+- Frozen `editor_member_ids`, `editor_member_names`.
+- Decrypted `title`, `body`.
+- `image_keys`.
+- `pinned_at`.
+- `created_at`.
 
-`ClientSettings` stores per-user/per-client JSON settings, also not currently included in `/v1/export`.
+These are historical snapshots of superseded content; the current body still lives on the journal or member row itself.
+
+### Watch Tokens And Notification Channels
+
+Sheaf now exports owner-side front-change notification config:
+
+- `watch_tokens[]` with `id`, `label`, `revoked_at`, `created_at`.
+- Nested `channels[]` with:
+  - destination type/config.
+  - base visibility filters.
+  - start/stop/cofront triggers.
+  - redaction/sensitivity/debounce/aggregation settings.
+  - quiet-hours config.
+  - group rules and member rules.
+
+The export intentionally omits non-portable or security-sensitive per-instance state:
+
+- activation hashes/tokens.
+- recipient redemption state.
+- `last_delivered_at`.
+- webhook secret ciphertext.
+
+### Files And Images
+
+`UploadedFile` is now partially exported:
+
+- `id`, `key`, `size_bytes`, `content_type`, `created_at`.
+
+This sync JSON is only a file inventory. The binary bytes do **not** ride along in `/v1/export`.
+
+For bytes, the async export job zip contains:
+
+- `export.json`.
+- `README.txt`.
+- `images/<key>` blobs for every uploaded file the user owns.
+
+That means Sheaf now has two distinct portability surfaces:
+
+- sync JSON for structured records.
+- async zip for structured records plus image bytes.
+
+### Client Settings And Account Data
+
+`ClientSettings` is still not part of `/v1/export`. In current source it moved to the separate Article 15 account-data endpoint (`POST /v1/account/data`) alongside sessions, trusted devices, API-key metadata, and other account/audit information.
 
 ## Imports
 
@@ -161,20 +230,31 @@ Sheaf has:
 - A Simply Plural import service.
 - A Sheaf import service for its own export format.
 
-Simply Plural import maps:
+But the current self-import path has not caught up to export v2 yet:
 
-- Members.
-- Custom fronts as members marked in description.
-- Custom fields and embedded member `info` values.
-- Groups and group memberships.
-- Front history.
-- System profile.
+- `sheaf/api/v1/sheaf_import.py` still rejects any file whose `version` is not `"1"`.
+- `sheaf/services/sheaf_import.py` only restores:
+  - basic system profile fields (`name`, `description`, `tag`, `color`, `privacy`).
+  - members.
+  - fronts.
+  - groups.
+  - tags.
+  - custom fields and values.
 
-The service currently skips Simply Plural notes with a warning until journal import is implemented.
+It does **not** currently import v2-only data such as:
+
+- system preferences (`date_format`, `replace_fronts_default`, `delete_confirmation`).
+- `safety` / `retention`.
+- journals.
+- revisions.
+- watch tokens / channels.
+- uploaded-file inventory.
+
+So the upstream changelog's "re-importable" claim is ahead of the checked-in parser at this snapshot.
 
 ## Import/Interoperability Notes
 
-Sheaf is close to a small OpenPlural core:
+Sheaf now covers more of the OpenPlural core directly than the original v1 research captured:
 
 - System.
 - Members.
@@ -182,5 +262,13 @@ Sheaf is close to a small OpenPlural core:
 - Hierarchical groups.
 - Tags.
 - Custom field definitions and values.
+- Notes/journals.
 
-It also shows a useful implementation boundary: models may exist before export/import support. OpenPlural conformance should test actual exported modules, not just database tables.
+The remaining gaps are not all the same kind:
+
+- `revisions[]` has no first-class OpenPlural record today; preserve it under `extensions` if needed.
+- `watch_tokens[]` likewise fits best in `extensions` until there is a notification/export module.
+- `uploaded_files[]` in sync JSON is inventory-only metadata, not enough by itself to emit self-contained OpenPlural `assets[]`.
+- The async zip is the better converter target when image portability matters, because it actually includes the `images/<key>` blobs referenced by journal `image_keys`.
+
+It also shows a useful implementation boundary: exporter coverage has moved ahead of importer coverage. OpenPlural conformance should test actual exported and imported modules separately, not assume round-trip parity inside the source app.

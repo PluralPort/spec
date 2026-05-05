@@ -86,20 +86,21 @@ nav_active: adopt
     <article class="adopt-card" id="sheaf">
       <h3>Sheaf <span class="who-status">Adopter</span></h3>
       <p class="adopt-sub">
-        <code>/v1/export</code> JSON v1. FastAPI/PostgreSQL with application-level encryption
-        (decrypted on export). Source of truth: <code>docs/apps/sheaf.md</code>.
+        <code>/v1/export</code> JSON v2, plus an async zip export with image bytes. FastAPI/PostgreSQL
+        with application-level encryption (decrypted on export). Source of truth:
+        <code>docs/apps/sheaf.md</code>.
       </p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Sheaf field</th><th>OpenPlural target</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>version: "1"</td><td>(envelope) → openplural_version: "0.1"</td><td><span class="tag tag-transform">transform</span></td></tr>
+            <tr><td>version: "2"</td><td>(envelope) → openplural_version: "0.1"</td><td><span class="tag tag-transform">transform</span></td></tr>
             <tr><td>system.id, name, description, tag</td><td>System.id, name, description, tag</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>system.avatar_url</td><td>Asset (uri-only) + System.avatar_asset_id</td><td><span class="tag tag-normalize">normalize</span></td></tr>
             <tr><td>system.color</td><td>System.color</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>system.privacy</td><td>System.privacy.visibility</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>system.date_format, replace_fronts_default</td><td>extensions.sheaf.*</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
-            <tr><td>(safety settings, retention overrides)</td><td>extensions.sheaf.safety (until safety module v0.2)</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>system.delete_confirmation, safety, retention</td><td>safety module (when v0.2 lands); otherwise <code>extensions.sheaf.*</code></td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>members[].id</td><td>Member.id</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>members[].name (decrypted)</td><td>Member.name</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>members[].display_name</td><td>Member.display_name</td><td><span class="tag tag-direct">direct</span></td></tr>
@@ -119,14 +120,16 @@ nav_active: adopt
             <tr><td>tags[].member_ids</td><td>TaxonomyAssignment[] (subject_type: "member")</td><td><span class="tag tag-normalize">normalize</span></td></tr>
             <tr><td>custom_fields[].id, name, field_type, options, order, privacy</td><td>CustomFieldDefinition (options accepts <code>string[] | Record&lt;string, unknown&gt; | null</code> since Sheaf stores it as JSONB <code>dict | None</code>)</td><td><span class="tag tag-transform">transform</span></td></tr>
             <tr><td>custom_fields[].values[] (member_id, value)</td><td>CustomFieldValue (subject_type: "member")</td><td><span class="tag tag-normalize">normalize</span></td></tr>
-            <tr><td>(JournalEntry — model exists, not exported)</td><td>Note (when Sheaf adds journal export)</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
-            <tr><td>(UploadedFile — model exists, not exported)</td><td>Asset (when Sheaf exports files)</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
-            <tr><td>(ClientSettings — not in /v1/export)</td><td>extensions.sheaf.client_settings (when added)</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>journals[].id, member_id, title, body, visibility, author_member_ids, created_at, updated_at</td><td>Note</td><td><span class="tag tag-direct">direct</span></td></tr>
+            <tr><td>journals[].image_keys + async zip <code>images/&lt;key&gt;</code></td><td>Asset + Note.attachment_asset_ids</td><td><span class="tag tag-normalize">normalize</span></td></tr>
+            <tr><td>sync <code>uploaded_files[]</code> inventory without bytes</td><td><code>extensions.sheaf.uploaded_files</code> unless paired with the async zip</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>revisions[] (journal/member-bio edit history)</td><td><code>extensions.sheaf.revisions</code> until OpenPlural grows a revision-history shape</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>watch_tokens[] + channels[]</td><td><code>extensions.sheaf.watch_tokens</code> until OpenPlural grows a notifications/export module</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
           </tbody>
         </table>
       </div>
       <div class="callout mt-14">
-        <p>Sheaf has an edge-case naming inconsistency: the no-system branch returns <code>fields</code> instead of <code>custom_fields</code>. The exporter should normalize this to <code>custom_fields</code>.</p>
+        <p>The sync JSON export is now good enough for systems, members, fronts, groups, tags, custom fields, and journals. For portable <code>assets[]</code>, prefer Sheaf's async zip export over bare <code>/v1/export</code>: the zip includes the actual <code>images/&lt;key&gt;</code> blobs, while the sync JSON only has avatar URLs and uploaded-file inventory metadata.</p>
       </div>
     </article>
 
