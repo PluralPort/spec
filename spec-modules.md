@@ -47,7 +47,7 @@ nav_active: spec
 
       <article class="record" id="conversation">
         <h3>Conversation</h3>
-        <p class="record-blurb">A container for messages. <code>kind</code> distinguishes channel chat from forum-style and thread-style surfaces.</p>
+        <p class="record-blurb">A container for messages. <code>kind</code> distinguishes channel chat from forum-style and thread-style surfaces. <code>access</code> makes room visibility and membership explicit.</p>
         <div class="table-wrap">
           <table class="field-table">
             <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
@@ -59,11 +59,11 @@ nav_active: spec
               <tr><td>category</td><td>string | null</td><td class="req-no">no</td><td>Optional grouping. Prism: <code>conversations.category</code>.</td></tr>
               <tr><td>description</td><td>string | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>emoji</td><td>string | null</td><td class="req-no">no</td><td></td></tr>
-              <tr><td>participant_member_ids</td><td>UUID[]</td><td class="req-no">no</td><td>Empty for system-wide channels.</td></tr>
+              <tr><td>access</td><td>{ kind: "all_members" } | { kind: "participants", member_ids: UUID[] }</td><td class="req-yes">yes</td><td><code>all_members</code> means every member in the system can view and participate. <code>participants</code> means <code>member_ids</code> is the authoritative membership set. <code>direct_message</code> conversations must use <code>{ kind: "participants", ... }</code>. For v0.1, <code>member_ids</code> must be non-empty.</td></tr>
               <tr><td>creator_member_id</td><td>UUID | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>archived</td><td>boolean</td><td class="req-no">no</td><td>Defaults to <code>false</code>.</td></tr>
               <tr><td>muted</td><td>boolean</td><td class="req-no">no</td><td></td></tr>
-              <tr><td>direct_message</td><td>boolean</td><td class="req-no">no</td><td>Prism: <code>conversations.isDirectMessage</code>.</td></tr>
+              <tr><td>direct_message</td><td>boolean</td><td class="req-no">no</td><td>Prism: <code>conversations.isDirectMessage</code>. When <code>true</code>, <code>access.kind</code> must be <code>"participants"</code>.</td></tr>
               <tr><td>created_at</td><td>ISO8601 | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>sort_order</td><td>number | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>source_refs</td><td>SourceRef[]</td><td class="req-no">no</td><td></td></tr>
@@ -75,6 +75,7 @@ nav_active: spec
           <b>Recommended <code>kind</code> values</b>
           <code>"internal_chat" | "forum" | "thread" | "direct_message" | "proxy_log" | "unknown"</code>
         </div>
+        <div class="callout mt-14"><p><b>Permission modeling:</b> <code>access</code> is the authoritative shared-model signal for room visibility and participation. App-specific overrides such as admin or moderator inspection permissions should be preserved in namespaced <code>extensions</code> rather than promoted into the core conversation shape.</p></div>
       </article>
 
       <article class="record" id="chatmessage">
@@ -147,9 +148,20 @@ nav_active: spec
   "system_id": "sys_01HV4Z...",
   "kind": "internal_chat",
   "title": "General",
-  "participant_member_ids": [],
+  "access": { "kind": "all_members" },
   "archived": false,
   "source_refs": [{ "app": "prism", "collection": "conversations", "id": "c_..." }],
+  "extensions": {}
+},
+{
+  "id": "conv_01HV50...",
+  "system_id": "sys_01HV4Z...",
+  "kind": "direct_message",
+  "title": null,
+  "access": { "kind": "participants", "member_ids": ["mem_01HV4Z...", "mem_01HV50..."] },
+  "direct_message": true,
+  "archived": false,
+  "source_refs": [{ "app": "prism", "collection": "conversations", "id": "dm_..." }],
   "extensions": {}
 }
     ],

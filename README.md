@@ -17,6 +17,7 @@ The full site is at <https://skylartaylor.github.io/openplural/> (built from the
   - [Fronting](https://skylartaylor.github.io/openplural/spec-fronting.html) — periods, events, comments, assignments
   - [Modules & contract](https://skylartaylor.github.io/openplural/spec-modules.html) — chat, boards, optional modules, importer contract
 - [Adoption guide](https://skylartaylor.github.io/openplural/adopt.html) — Prism + Sheaf mapping tables, maintainer guidance
+- [Changelog](https://skylartaylor.github.io/openplural/changelog.html) — meaningful spec changes within the current draft without a version bump
 - [Proposal](https://skylartaylor.github.io/openplural/proposal.html) — the v0.1 proposal as a single page
 
 ## Reference
@@ -25,7 +26,7 @@ Source markdown for the same content (rendered on GitHub):
 
 - [Feature matrix](docs/feature-matrix.md)
 - [OpenPlural v0.1 proposal](docs/openplural-proposal.md)
-- Per-page sources at the repo root: `index.md`, `apps.md`, `spec.md`, `spec-records.md`, `spec-fronting.md`, `spec-modules.md`, `adopt.md`
+- Per-page sources at the repo root: `index.md`, `apps.md`, `spec.md`, `spec-records.md`, `spec-fronting.md`, `spec-modules.md`, `adopt.md`, `changelog.md`
 
 ## App Research
 

@@ -19,7 +19,7 @@ OpenPlural is a proposed file shape that any app can export to and import from. 
 
 ## where it stands
 
-Two app maintainers — [Prism](adopt.html#prism) and [Sheaf](adopt.html#sheaf) — have said they'd try this if the spec is good. We've [researched seven others](apps.html) to make sure the shape covers what real apps actually store. The spec is at draft v0.1 — meaning we'd rather argue with you about a wrong spec now than ship a confident one that's wrong later.
+Two app maintainers — [Prism](adopt.html#prism) and [Sheaf](adopt.html#sheaf) — have said they'd try this if the spec is good. We've [researched seven others](apps.html) to make sure the shape covers what real apps actually store. The spec is at draft v0.1 — meaning we'd rather argue with you about a wrong spec now than ship a confident one that's wrong later. Major changes within the current draft are tracked on the [changelog](changelog.html).
 
 Things that are still open:
 
@@ -60,6 +60,7 @@ A common file shape doesn't fix that on its own. But it makes "leave with your d
 
 - Short on time → just the [proposal draft](proposal.html).
 - A little more time → [spec hub](spec.html), then [apps](apps.html), then [adopt](adopt.html).
+- Want to see what's changed recently → [changelog](changelog.html).
 - Want everything → the per-app research lives in [docs/](https://github.com/skylartaylor/openplural/tree/main/docs).
 
 ---
