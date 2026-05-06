@@ -6,12 +6,27 @@ Sources:
 
 - Website: https://pluralspace.app/
 - Two sample GDPR exports inspected, generated 2026-05-03 (mock data). The second was produced after creating groups in the app to capture group records.
+- Maintainer implementation notes shared 2026-05-06 (stack/runtime and fronting-storage overview). These are useful architectural context, but they are not a published schema or source audit.
 
 PluralSpace is a separate app from Plural Star, despite a shared naming history: the React Native app formerly called "Plural Space" rebranded to "Plural Star", while the unrelated web app at `pluralspace.app` kept the "PluralSpace" (no space) name. They are different products with different data models and should be treated as distinct apps for OpenPlural purposes. See [`plural-star.md`](plural-star.md) for the Plural Star format.
 
 The current export is framed as a regulatory data-portability dump: the manifest cites GDPR Article 15 (Right of Access) and Article 20 (Right to Data Portability). This isn't the same affordance as a round-trippable backup. The ZIP and `data.json` shape documented below is reconstructed from inspected sample exports — there's no published schema for it.
 
 The public [developers page](https://pluralspace.app/developers) lists a REST API as "Coming Soon" and "actively in development" and shows a preview, but the API isn't a usable surface yet. If and when it ships it'd likely be a better target for an OpenPlural converter than the GDPR export, but that's speculative until it's public. The research below should be read as a snapshot of the GDPR export specifically.
+
+## Runtime And Deployment Context
+
+Per maintainer notes shared 2026-05-06, PluralSpace's current stack is:
+
+- Backend/API: PHP with Laravel.
+- Web frontend: currently Laravel Livewire + Tailwind CSS + FluxUI, with an in-progress rewrite toward Vue.js.
+- Mobile apps: CapacitorJS with Vue.js, reusing website components where possible.
+- Database/search/cache: PostgreSQL, Redis, Memcache, Meilisearch.
+- Queues/realtime/runtime: Laravel queues with Horizon, Soketi for Pusher-compatible websockets, FrankenPHP as the long-lived PHP runner.
+- Ops/services: self-hosted deployment; Gatus for status, GlitchTip for error monitoring, telemetry disabled on self-hosted OSS components.
+- Topology: 2 app nodes behind a least-connections load balancer, 2 worker nodes running Horizon, plus separate nodes for Meilisearch, Gatus, and GlitchTip. The help bot is written in SapphireJS and calls the PluralSpace API.
+
+This doesn't change the export mapping directly, but it is useful context for future API/realtime documentation: the app is a Laravel/Postgres system with queue-backed notifications and websocket-delivered UI updates, not a local-only client.
 
 ## Export Shape
 
@@ -126,6 +141,13 @@ Notable shape choices:
 - `comment` is duplicated across all co-front rows that share the interval.
 - `is_live` flags an open front. `ended_at` is non-null even on archived rows.
 - No tier distinction (primary vs. co-front vs. co-conscious) — flatter than Plural Star.
+
+Maintainer-provided storage notes line up with that export shape:
+
+- The relational core is described as `fronts` plus `systems`, `members`, and `front types`, with `fronts` keyed by `system_id`, `member_id`, `front_type_id`, `started_at`, and `ended_at`.
+- That reinforces our current interpretation that co-fronting is reconstructed from concurrent per-member rows, not from a separate grouped front record.
+- It also makes the export's `type` / `type_name` pair easier to interpret: those likely come from a joined front-type relation rather than a flat enum stored directly on the row.
+- The maintainer also described a start/end/change pipeline that emits a `FrontChanged` event, flushes front-related cache via an observer, and queues user notifications. That's useful product/architecture context, but not part of the GDPR export contract documented here.
 
 ### Journal Entries
 
