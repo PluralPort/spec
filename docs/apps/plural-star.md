@@ -5,8 +5,9 @@
 Sources:
 
 - Repository: https://github.com/TheHanyou/Plural-Star
+- README and source snapshot checked at commit `467ab9b7d33829326410056bf558a3507966b5b7` on 2026-05-06.
 
-Plural Star is a React Native app, formerly named "Plural Space" (with a space) before its rebrand. It is **not** the same product as PluralSpace (no space) at `pluralspace.app`, which is a separate web app that kept its original name; see [`pluralspace.md`](pluralspace.md).
+Plural Star is an open-source React Native app, formerly named "Plural Space" (with a space) before its rebrand. It is **not** the same product as PluralSpace (no space) at `pluralspace.app`, which is a separate web app that kept its original name; see [`pluralspace.md`](pluralspace.md).
 
 ## Storage And Export Shape
 
@@ -30,7 +31,7 @@ Plural Star is a React Native app using `AsyncStorage` plus filesystem backups. 
 
 Critical keys are also backed up as JSON files under the app document directory.
 
-The export payload has `_meta` plus selected categories:
+The JSON export payload is assembled from `_meta` plus whichever categories the user selects in the export UI:
 
 ```json
 {
@@ -46,7 +47,7 @@ The export payload has `_meta` plus selected categories:
   "journal": [],
   "groups": [],
   "chatChannels": [],
-  "chatMessages": [],
+  "chatMessages": {},
   "settings": {},
   "customFieldDefs": [],
   "customMoods": [],
@@ -57,6 +58,12 @@ The export payload has `_meta` plus selected categories:
   "banners": {}
 }
 ```
+
+Notable export behavior from `src/export/exportUtils.ts`:
+
+- JSON export is category-selective: system, members, avatars, banners, front history, journal, groups, chat, custom moods, palettes, settings, custom fields, noteboards, and polls can each be toggled on or off.
+- `chatMessages` is **not** a flat top-level array. It is a record keyed by channel ID (`Record<string, ChatMessage[]>`).
+- Timestamps in the app model are epoch numbers (`number`), not ISO strings.
 
 ## Records
 
@@ -77,7 +84,7 @@ The export payload has `_meta` plus selected categories:
 - `id`, `name`, `pronouns`, `role`, `color`, `description`.
 - Optional `tags`, `groupIds`, `archived`, `avatar`, `banner`.
 - Optional `customFields`.
-- Optional `sortOrder`, `createdAt`.
+- Optional `sortOrder`, `createdAt`, `sourceId`.
 
 Avatar/banner file paths are stripped during export. Image bytes can be exported separately in `avatars` and `banners` dictionaries keyed by member ID.
 
@@ -121,7 +128,7 @@ FrontState {
   primary: FrontTier,
   coFront: FrontTier,
   coConscious: FrontTier,
-  startTime: string
+  startTime: number
 }
 ```
 
@@ -150,7 +157,7 @@ This is more expressive than simple overlapping per-member rows because it disti
 - `authorIds`.
 - `hashtags`.
 - Optional per-entry password.
-- `timestamp`.
+- `timestamp` (epoch number).
 
 ### Chat
 
@@ -160,7 +167,9 @@ Chat is exported as two sibling top-level keys, `chatChannels` and `chatMessages
 
 - `id`, `name`, archived state/timestamps, created time.
 
-`ChatMessage` (in `chatMessages[]`):
+`chatMessages` is a record keyed by channel ID. Each value is a `ChatMessage[]`.
+
+`ChatMessage`:
 
 - `id`, `channelId`, `authorId`.
 - `type`: text, image, file, reply, reaction.
@@ -189,7 +198,7 @@ Options contain `id`, `label`, and member-ID votes.
 
 ## Import/Interoperability Notes
 
-Plural Star imports its own backup JSON, Simply Plural, and PluralKit. Its Simply Plural importer groups overlapping SP front rows into a single history entry with `memberIds`.
+Plural Star imports its own backup JSON, Simply Plural, and PluralKit. The Simply Plural import path groups overlapping per-member SP front rows into combined history entries and maps SP groups/custom fields into Plural Star's flat local models.
 
 For OpenPlural, it argues for:
 
