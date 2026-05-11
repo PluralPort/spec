@@ -156,7 +156,7 @@ OpenPlural should allow multiple systems in one file because Lighthouse and Ampe
 
 Use `is_custom_front` for Simply Plural custom fronts and Ampersand custom fronts. Apps that can't represent custom fronts can import them as archived members, taxonomy labels, or report a loss.
 
-Round-trip is lossy for apps (e.g. Sheaf) that don't preserve a dedicated custom-front flag — they encode the distinction in the description, and importers may need to re-parse if the source app is known.
+Round-trip is lossy for apps that don't preserve a dedicated custom-front flag — they encode the distinction in the description, and importers may need to re-parse if the source app is known.
 
 ## Groups And Taxonomy
 
