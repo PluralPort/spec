@@ -14,6 +14,7 @@ This table compares the researched apps at the level OpenPlural needs for portab
 | Lighthouse | OSS | ZIP of CSVs plus narrow token API | Yes | Yes | Not implemented in inspected schema | Subsystems as systems | No generic custom fields found | Journals and communal journals | Forum/thread posts | No system polls found | Safety/BDA plans, rules, wishlist | Image URLs/blobs | Token permissions |
 | OpenSelves | OSS | Sync log DTOs, no export found | No separate system | Yes | Per-member intervals | No | No | No | No | No | No | Member image | Account auth only |
 | Ampersand | OSS | Local JSON backup | Yes | Yes | Per-member intervals with main/influencing/presence | Typed tags and nested systems | Definitions, string values on members | Journal posts | Board messages | Polls on board messages | Reminder model, not exported | Optional Data URI files/assets | Local app/security config |
+| Tupperbox | Closed-source Discord bot | `tul!export` JSON | No | Yes | No | Flat groups, one-per-member | No | No | No (proxy bot only) | No | No | Avatar URL (CDN) + banner | No privacy model |
 
 ## Fronting Models
 

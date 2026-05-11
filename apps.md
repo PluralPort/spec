@@ -140,6 +140,17 @@ nav_active: apps
           <td>Chat + board messages</td>
           <td>Avatar URLs, privacy buckets, friends</td>
         </tr>
+        <tr>
+          <td>Tupperbox</td>
+          <td><code>tul!export</code> JSON (Discord bot, closed source)</td>
+          <td><span class="tag yes">Yes</span></td>
+          <td><span class="tag no">No</span></td>
+          <td>Flat groups, one-per-member</td>
+          <td><span class="tag no">No</span></td>
+          <td><span class="tag no">No</span></td>
+          <td>Discord proxy bot only</td>
+          <td>Avatar URL (CDN) + banner; no privacy model</td>
+        </tr>
       </tbody>
     </table>
   </div>
