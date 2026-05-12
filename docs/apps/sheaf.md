@@ -43,6 +43,7 @@ If a user has no system, export returns `system: null` and empty arrays for ever
 
 - `id`, `user_id`.
 - `name`, `description`, `tag`, `avatar_url`, `color`.
+- Encrypted `note` (separate from `description`; decrypted on export).
 - `privacy`: `public`, `friends`, or `private`.
 - `date_format`: `dmy`, `mdy`, or `ymd`.
 - `replace_fronts_default`: whether starting a front ends open fronts by default.
@@ -58,7 +59,7 @@ If a user has no system, export returns `system: null` and empty arrays for ever
 
 Current export includes both profile fields and these preference/safety/retention blocks:
 
-- `id`, `name`, `description`, `tag`, `avatar_url`, `color`, `privacy`.
+- `id`, `name`, `description`, `note`, `tag`, `avatar_url`, `color`, `privacy`.
 - `replace_fronts_default`, `date_format`, `delete_confirmation`.
 - `safety`.
 - `retention`.
@@ -69,13 +70,16 @@ Current export includes both profile fields and these preference/safety/retentio
 
 - `id`, `system_id`.
 - Encrypted `name` and `description`; `name_hash` blind index.
-- `display_name`, `pronouns`, `avatar_url`, `color`, `birthday`.
+- `display_name`, `pronouns`, `avatar_url`, `color`, `birthday`, `emoji`.
+- `pluralkit_id`: optional 5-char PluralKit member hid for users who sync with PK.
+- `is_custom_front`: boolean flag distinguishing custom fronts from members.
+- Encrypted `note` (separate from `description`; decrypted on export).
 - `privacy`.
 - Relationships to fronts, groups, tags, custom field values.
 
-Export decrypts name and description:
+Export decrypts name, description, and note:
 
-- `id`, `name`, `display_name`, `description`, `pronouns`, `avatar_url`, `color`, `birthday`, `privacy`, `created_at`.
+- `id`, `name`, `display_name`, `description`, `pronouns`, `avatar_url`, `color`, `birthday`, `pluralkit_id`, `emoji`, `is_custom_front`, `privacy`, `note`, `created_at`.
 
 ### Fronts
 
@@ -83,11 +87,12 @@ Export decrypts name and description:
 
 - `id`, `system_id`.
 - `started_at`, optional `ended_at`.
+- Encrypted `custom_status` (free-text per-front status string; decrypted on export).
 - Many-to-many members through `front_members`.
 
 Export:
 
-- `id`, `started_at`, `ended_at`, `member_ids`.
+- `id`, `started_at`, `ended_at`, `member_ids`, `custom_status`.
 
 Sheaf supports co-fronting through the join table.
 
@@ -180,6 +185,65 @@ Important nuance: the current journal model only actively uses `visibility: "sys
 
 These are historical snapshots of superseded content; the current body still lives on the journal or member row itself.
 
+### Messages
+
+Sheaf exports board messages from two surfaces: a system-wide global board, and per-member walls. Both share the same shape.
+
+`Message`:
+
+- `id`, `system_id`.
+- `board_kind`: `"system"` or `"member"`.
+- `board_member_id`: the recipient member for member-wall posts; null for system-board posts.
+- `author_member_id`: nullable; null when the author has been deleted.
+- `parent_message_id`: nullable; single-level reply pointer. The UI renders flat with a "Replying to X" backlink rather than a tree. `parent_message_id` may itself be a reply, so a chain forms naturally.
+- Encrypted `body` (markdown, decrypted on export).
+- `deleted_at`: soft-delete tombstone; the export excludes soft-deleted rows.
+- `created_at`, `updated_at`.
+
+Edit history rides the same polymorphic `content_revisions` surface as journals and member bios (`target_type: "message"`).
+
+Export omits soft-deleted rows:
+
+- `id`, `board_kind`, `board_member_id`, `author_member_id`, `parent_message_id`, `body`, `created_at`, `updated_at`.
+
+### Polls
+
+`Poll`:
+
+- `id`, `system_id`.
+- Encrypted `question`, optional encrypted `description` (decrypted on export).
+- `kind`: poll type (single, multi-select, ranked, etc.).
+- `results_visibility`: when results are visible to voters.
+- `closes_at`: poll deadline.
+- `retention_days`: how long the poll is kept after closing.
+- `include_custom_fronts`: whether custom fronts are eligible to vote.
+- Options with encrypted `text` and a positional `order`.
+- Votes with `voted_as_member_id` and `option_ids[]`.
+- Audit events: cast, change, withdraw, close, with frozen `voted_as_member_id`, `fronting_member_ids`, and an `actor_user_id`.
+
+Export:
+
+- `id`, `question`, `description`, `kind`, `results_visibility`, `closes_at`, `retention_days`, `include_custom_fronts`, `created_at`.
+- `options[]` with `id`, `text`, `position`.
+- `votes[]` with `voted_as_member_id`, `option_ids[]`, `created_at`, `updated_at`.
+- `events[]` with `id`, `voted_as_member_id`, `action`, `option_ids[]`, `fronting_member_ids[]`, `actor_user_id`, `created_at`.
+
+### Reminders
+
+`Reminder`:
+
+- `id`, `system_id`, `channel_id` (references a notification channel).
+- `name`.
+- Encrypted `title`, optional encrypted `body` (decrypted on export).
+- `enabled`.
+- `trigger_type`: time-based or member-event-based.
+- Member-event triggers: `trigger_member_id`, `trigger_event` (e.g., on-front-start), `delay_seconds`.
+- Time-based triggers: `schedule_kind`, `schedule_time`, `schedule_dow_mask`, `schedule_dom`, `schedule_tz`, or a raw `cron_expression`.
+- Scope: all members, current fronters, or specific member set via `scope_member_ids[]`.
+- `digest_when_absent`: whether to digest if no member matches scope at fire time.
+
+Export omits runtime state (pending queue, last_fired_at) but preserves the trigger and scope configuration.
+
 ### Watch Tokens And Notification Channels
 
 Sheaf now exports owner-side front-change notification config:
@@ -257,8 +321,8 @@ So the upstream changelog's "re-importable" claim is ahead of the checked-in par
 Sheaf now covers more of the OpenPlural core directly than the original v1 research captured:
 
 - System.
-- Members.
-- Front intervals with co-fronting.
+- Members (including a dedicated `is_custom_front` boolean, so Simply Plural custom fronts and PluralKit member identity both round-trip without extension fallback).
+- Front intervals with co-fronting, plus a free-text `custom_status` per period.
 - Hierarchical groups.
 - Tags.
 - Custom field definitions and values.
@@ -267,6 +331,8 @@ Sheaf now covers more of the OpenPlural core directly than the original v1 resea
 The remaining gaps are not all the same kind:
 
 - `revisions[]` has no first-class OpenPlural record today; preserve it under `extensions` if needed.
+- `messages[]` map to the boards module, but the single-level reply pointer (`parent_message_id`) has no v0.1 home and lands in `extensions.sheaf` unless `BoardPost` grows a reply field.
+- `polls[]` and `reminders[]` are full Sheaf surfaces but neither has a v0.1 module; both fit under `extensions.sheaf` as preserved-only until the relevant modules land.
 - `watch_tokens[]` likewise fits best in `extensions` until there is a notification/export module.
 - `uploaded_files[]` in sync JSON is inventory-only metadata, not enough by itself to emit self-contained OpenPlural `assets[]`.
 - The async zip is the better converter target when image portability matters, because it actually includes the `images/<key>` blobs referenced by journal `image_keys`.

@@ -49,7 +49,7 @@ nav_active: apps
           <td>Hierarchical groups + tags</td>
           <td>Definitions and values</td>
           <td>Journals + revision history</td>
-          <td><span class="tag no">No</span></td>
+          <td>Board messages (system + per-member walls) with single-level replies; plus polls and reminders</td>
           <td>Avatar URLs + uploaded-file inventory; privacy, safety, watch-token config</td>
         </tr>
         <tr>
@@ -182,8 +182,8 @@ nav_active: apps
     <p class="app-sub">
       FastAPI/PostgreSQL app with application-level encryption. Already exposes <code>/v1/export</code>
       returning JSON v2 with system, members, fronts, groups, tags, custom fields, journals,
-      revision history, watch-token notification config, and uploaded-file inventory. A separate
-      async export job also packages image bytes into a zip.
+      revision history, board messages, polls, reminders, watch-token notification config, and
+      uploaded-file inventory. A separate async export job also packages image bytes into a zip.
     </p>
     <div class="table-wrap">
       <table>
@@ -196,6 +196,8 @@ nav_active: apps
           <tr><td><code>tags[]</code> with inline <code>member_ids</code></td><td><a href="spec-records.html#taxonomyterm">TaxonomyTerm</a> (<code>kind: "tag"</code>) + <a href="spec-records.html#taxonomyassignment">TaxonomyAssignment</a></td></tr>
           <tr><td><code>custom_fields[]</code> with nested <code>values</code></td><td><a href="spec-records.html#customfielddefinition">CustomFieldDefinition</a> + <a href="spec-records.html#customfieldvalue">CustomFieldValue</a></td></tr>
           <tr><td><code>journals[]</code></td><td><a href="spec-records.html#note">Note</a></td></tr>
+          <tr><td><code>messages[]</code> (system board + per-member walls, single-level replies)</td><td><a href="spec-modules.html#boardpost">BoardPost</a> (reply pointer lands in <code>extensions.sheaf</code> until <code>parent_post_id</code> lands)</td></tr>
+          <tr><td><code>polls[]</code>, <code>reminders[]</code></td><td><code>extensions.sheaf.*</code> until polls/reminders modules land in v0.2</td></tr>
           <tr><td><code>revisions[]</code>, <code>watch_tokens[]</code>, sync <code>uploaded_files[]</code></td><td>Best preserved in <code>extensions</code> today; the async zip is the better source for portable <a href="spec-records.html#asset">Asset</a> records</td></tr>
         </tbody>
       </table>
@@ -481,10 +483,10 @@ nav_active: apps
     </article>
     <article class="message-card">
       <h3>Lighthouse / Sheaf / OpenSelves</h3>
-      <p>No direct internal chat in current portable shapes.</p>
+      <p>No internal chat surface; boards-style content where present.</p>
       <ul>
         <li>Lighthouse: forums, threads, thread posts, communal journals.</li>
-        <li>Sheaf: no chat in <code>/v1/export</code>.</li>
+        <li>Sheaf: board messages on a system-wide board plus per-member walls, with single-level replies and shared revision history. Not chat-style threading.</li>
         <li>OpenSelves: no chat model in inspected schema.</li>
       </ul>
     </article>
