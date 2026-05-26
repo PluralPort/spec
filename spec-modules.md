@@ -195,7 +195,7 @@ nav_active: spec
               <tr><td>system_id</td><td>UUID</td><td class="req-yes">yes</td><td></td></tr>
               <tr><td>target_member_id</td><td>UUID | null</td><td class="req-no">no</td><td>Null = system-wide timeline (Prism public board with no target).</td></tr>
               <tr><td>author_member_id</td><td>UUID | null</td><td class="req-no">no</td><td>Null = legacy/imported post with no surviving author (Prism preserves this for SP imports).</td></tr>
-              <tr><td>title</td><td>string | null</td><td class="req-no">no</td><td>Prism, Simply Plural. Plural Star and Ampersand have no title.</td></tr>
+              <tr><td>title</td><td>string | null</td><td class="req-no">no</td><td>Prism, Simply Plural, Ampersand. Plural Star has no title.</td></tr>
               <tr><td>body</td><td>string</td><td class="req-yes">yes</td><td>Markdown if the source app uses it. Required and non-empty.</td></tr>
               <tr><td>audience</td><td>"public" | "private" | "unknown"</td><td class="req-no">no</td><td>Defaults to <code>"public"</code>. Prism's public/private distinction. Apps without an audience concept use <code>"public"</code>.</td></tr>
               <tr><td>pinned</td><td>boolean</td><td class="req-no">no</td><td>Defaults to <code>false</code>. Plural Star, Simply Plural.</td></tr>
