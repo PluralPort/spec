@@ -65,14 +65,14 @@ nav_active: apps
         </tr>
         <tr>
           <td>Ampersand</td>
-          <td>JSON third-party migration export (sibling <code>.ampar</code> msgpack archive is self-backup)</td>
+          <td>No production interoperable export; <code>.ampar</code> self-backup only</td>
           <td><span class="tag yes">Yes</span></td>
-          <td>Per-member intervals with main/influencing/presence</td>
+          <td>Per-member intervals with main/influencing/custom-status/presence</td>
           <td>Typed tags + nested systems</td>
           <td>Definitions, string values on members</td>
-          <td>Multi-author journal posts</td>
-          <td>Multi-author board messages with threaded comments</td>
-          <td>Data URI files/assets (always embedded)</td>
+          <td>Journal posts</td>
+          <td>Board messages with polls</td>
+          <td>Imports SP / Octocon / PluralKit / Tupperbox</td>
         </tr>
         <tr>
           <td>Lighthouse</td>
@@ -257,29 +257,19 @@ nav_active: apps
   <article class="app-block panel" id="ampersand">
     <h3>Ampersand</h3>
     <p class="app-sub">
-      Offline-first Tauri/Vue app (alpha). For inter-app migration, the relevant export
-      is <code>exportDatabaseToJSON()</code> (no arguments; file payloads always embedded
-      as Data URIs) — sibling <code>.ampar</code> msgpack archive is Ampersand's own
-      self-backup. Per-member intervals with main/influencing/presence; typed tags for
-      members/journals/assets; nested systems; multi-author posts; threaded comments on
-      board messages, journal posts, and fronting entries. Eleven tables total — adds
-      reminders, notes, and saved filter queries beyond the core profile/fronting/board/
-      journal records. The JSON importer clears every table before importing, then runs
-      per-table migrations after the stream completes.
+      Offline-first Tauri/Vue app (alpha). <strong>No production interoperable export
+      today</strong> — the only normal Import/Export surface produces an <code>.ampar</code>
+      msgpack archive, which is a self-backup, not an inter-app format. Ampersand's interop
+      surface today is import-only: it consumes Simply Plural, Octocon, PluralKit, and
+      Tupperbox exports as a migration destination.
     </p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Ampersand shape</th><th>OpenPlural target</th></tr></thead>
-        <tbody>
-          <tr><td>Front entries with main/influencing/presence</td><td><a href="spec-fronting.html#frontperiod">FrontPeriod</a> with <code>presence</code>/<code>mood</code>/<code>energy</code> on assignments</td></tr>
-          <tr><td>Typed tags (members/journals/assets)</td><td><a href="spec-records.html#taxonomyterm">TaxonomyTerm</a> + scoped <a href="spec-records.html#taxonomyassignment">TaxonomyAssignment</a></td></tr>
-          <tr><td>Nested systems</td><td><a href="spec-records.html#system">System</a> with <code>parent_system_id</code></td></tr>
-          <tr><td>Multi-author board messages and journal posts (<code>members: UUID[]</code>)</td><td><code>author_member_ids</code> on <a href="spec-modules.html#boardpost">BoardPost</a> and <a href="spec-records.html#note">Note</a></td></tr>
-          <tr><td>Threaded comments (<code>Comment.replyTo</code> references parent <code>date</code>)</td><td>Land via <code>extensions</code> on the parent record until a comments module is formalized (post-v0.1)</td></tr>
-          <tr><td>Board messages + polls</td><td><a href="spec-modules.html#boardpost">BoardPost</a> + <code>polls</code> module (poll attached to a board post lives in polls and references the post via <code>extensions</code> until v0.2 formalizes attachment)</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <p class="app-sub">
+      At a concept level it models systems with nesting, members with custom fronts, per-member
+      fronting intervals with main/influencing/custom-status/presence metadata, typed tags
+      scoped to members/journals/assets, custom fields with per-member string values, journal
+      posts, board messages with polls, and assets. Per-record field shapes are out of scope
+      here until a portable export ships.
+    </p>
     <div class="app-meta">
       <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/ampersand.md">Research doc</a>
       <a href="https://github.com/NyaomiDEV/Ampersand">Repository</a>
@@ -486,10 +476,9 @@ nav_active: apps
       <h3>Ampersand</h3>
       <p>Board-style, not channel chat.</p>
       <ul>
-        <li><code>boardMessages</code> carry a <code>members: UUID[]</code> array (multi-author), title, body, date, pinned/archive flags.</li>
+        <li>Board messages with title, body, date, pinned/archive flags.</li>
         <li>Board messages can include polls with choices and votes.</li>
-        <li>Board messages, journal posts, and fronting entries all carry an optional <code>comments[]</code> array; replies link via <code>replyTo</code> on the parent comment's <code>date</code>.</li>
-        <li>No channel/thread chat in the inspected export.</li>
+        <li>No channel/thread chat.</li>
       </ul>
     </article>
     <article class="message-card">

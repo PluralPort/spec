@@ -13,7 +13,7 @@ This table compares the researched apps at the level OpenPlural needs for portab
 | Plural Star | OSS | Local backup JSON v1.2 | Yes | Yes | Tiered history: primary/co-front/co-conscious | Flat groups | Definitions and values | Journal | Channels/messages | Member polls | Notifications/settings, no habit module found | Avatar/banner dictionaries | Share/settings data |
 | Lighthouse | OSS | ZIP of CSVs plus narrow token API | Yes | Yes | Not implemented in inspected schema | Subsystems as systems | No generic custom fields found | Journals and communal journals | Forum/thread posts | No system polls found | Safety/BDA plans, rules, wishlist | Image URLs/blobs | Token permissions |
 | OpenSelves | OSS | Sync log DTOs, no export found | No separate system | Yes | Per-member intervals | No | No | No | No | No | No | Member image | Account auth only |
-| Ampersand | OSS | JSON third-party migration export (sibling `.ampar` msgpack archive is self-backup) | Yes | Yes | Per-member intervals with main/influencing/presence | Typed tags and nested systems | Definitions, string values on members | Multi-author journal posts with threaded comments | Multi-author board messages with threaded comments | Polls on board messages | Reminders (fronting-start/stop trigger, ms notification delay) | Data URI files/assets (always embedded) | Local app/security config; notes + saved filter queries |
+| Ampersand | OSS | No production interoperable export; `.ampar` self-backup only | Yes | Yes | Per-member intervals with main/influencing/custom-status/presence | Typed tags and nested systems | Definitions, string values on members | Journal posts | Board messages | Polls on board messages | No | Yes | Local app/security config |
 | Tupperbox | Closed-source Discord bot | `tul!export` JSON | No | Yes | No | Flat groups, one-per-member | No | No | No (proxy bot only) | No | No | Avatar URL (CDN) + banner | No privacy model |
 
 ## Fronting Models
@@ -28,7 +28,7 @@ This table compares the researched apps at the level OpenPlural needs for portab
 | Octocon | Per-alter intervals with optional short comment; no grouped period record. | Need interval records and single-member assignments per row. |
 | Sheaf | One front interval with many members. | Need grouped interval periods with assignments. |
 | OpenSelves | One member per interval. | Need simple subset import path. |
-| Ampersand | One member per interval with main/influencing/presence. | Need optional assignment metadata. |
+| Ampersand | One member per interval with main/influencing/custom-status/presence. | Need optional assignment metadata. |
 | Lighthouse | Stub only in inspected source. | Do not assume support. |
 
 ## Custom Field Models
@@ -40,7 +40,7 @@ This table compares the researched apps at the level OpenPlural needs for portab
 | Plural Star | `customFieldDefs` | Member custom values | Rich text/date/range/number/toggle/color variants. |
 | PluralSpace | `custom_fields[]` | Nested under definition (Sheaf-style); empty in inspected sample | `text`, `date` observed; `is_multiple` toggle. |
 | Sheaf | `custom_fields[]` (export; DB tables are `custom_field_definitions`/`custom_field_values`) | Nested `custom_fields[].values[]` in `/v1/export` | Text, number, date, boolean, select, multiselect. |
-| Ampersand | `customFields` | `members.customFields` map | No type enum; values are always strings. `default` is a boolean meaning "pre-fill on new members". |
+| Ampersand | `customFields` | `members.customFields` map | No type enum; values are always strings. |
 | PluralKit | None | None | Not applicable. |
 | OpenSelves | None | None | Not applicable. |
 | Lighthouse | Rich fixed alter columns | Table columns | Not generic custom fields. |

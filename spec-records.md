@@ -447,7 +447,7 @@ nav_active: spec
               <tr><td>created_at</td><td>ISO8601</td><td class="req-yes">yes</td><td></td></tr>
               <tr><td>updated_at</td><td>ISO8601 | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>entry_date</td><td>Date | null</td><td class="req-no">no</td><td>For journal-style day entries (Plural Star, Lighthouse).</td></tr>
-              <tr><td>author_member_ids</td><td>UUID[]</td><td class="req-no">no</td><td>Co-authored entries (Sheaf journal frozen-author snapshots, Ampersand multi-author).</td></tr>
+              <tr><td>author_member_ids</td><td>UUID[]</td><td class="req-no">no</td><td>Co-authored entries (Sheaf journal frozen-author snapshots).</td></tr>
               <tr><td>color</td><td>HexColor | null</td><td class="req-no">no</td><td>Prism: <code>notes.color</code>.</td></tr>
               <tr><td>visibility</td><td>"private" | "system" | "friends" | "trusted" | "public" | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>pinned</td><td>boolean</td><td class="req-no">no</td><td></td></tr>
