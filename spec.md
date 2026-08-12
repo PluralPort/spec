@@ -56,8 +56,12 @@ nav_active: spec
   <div class="panel">
     <p style="margin: 0 0 10px;">
       OpenPlural may be delivered as a bare JSON document, or as a ZIP bundle with the canonical
-      extension <code>.openplural.zip</code>. Importers may also accept <code>.openplural</code> as a
+      extension <code>.pluralport.zip</code>. Importers must also accept the legacy
+      <code>.openplural.zip</code> extension. They may accept <code>.openplural</code> as an additional
       compatibility alias, but must identify and validate the content rather than trust the filename.
+      New exporters should emit <code>.pluralport.zip</code>; existing exporters may continue to emit
+      <code>.openplural.zip</code> while applications transition. Both extensions carry the same v0.1
+      bundle and do not rename its wire identifiers.
       A bundle must put the envelope at the ZIP root as <code>openplural.json</code>. Binary files
       referenced by <a href="spec-records.html#asset">Asset</a> records should live under
       <code>assets/</code>, with each record's <code>bundle_path</code> pointing at the exact ZIP entry.
@@ -75,6 +79,8 @@ nav_active: spec
       assets merely because a <code>media/</code> directory exists. Earlier bundle discussion used
       <code>export.json</code> and <code>Asset.path</code>; v0.1 standardizes <code>openplural.json</code> and
       <code>Asset.bundle_path</code> to match shipped envelopes and distinguish an archive entry from a URI.
+      Until Sheaf migrates to the core field, importers should also recognize its current
+      <code>extensions.sheaf.bundle_path</code> using the same path-safety rules.
       The v0.1 ZIP is plaintext and does not define an encrypted wrapper; producers must say so clearly when
       handling sensitive exports.
     </p>
@@ -169,7 +175,7 @@ nav_active: spec
     <p style="margin: 0 0 8px;">
       <code>prism</code>, <code>sheaf</code>, <code>simply_plural</code>, <code>pluralkit</code>,
       <code>octocon</code>, <code>plural_star</code>, <code>lighthouse</code>, <code>openselves</code>,
-      <code>ampersand</code>, <code>pluralspace</code>.
+      <code>ampersand</code>, <code>pluralspace</code>, <code>tupperbox</code>.
     </p>
     <p style="margin: 0;">
       New IDs are registered by PR to the OpenPlural repo — maintainers keep the canonical list. Apps

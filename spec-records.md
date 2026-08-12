@@ -472,7 +472,7 @@ nav_active: spec
               <tr><td>kind</td><td>"avatar" | "banner" | "image" | "audio" | "video" | "file" | "thumbnail" | "unknown"</td><td class="req-yes">yes</td><td></td></tr>
               <tr><td>mime_type</td><td>string | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>file_name</td><td>string | null</td><td class="req-no">no</td><td></td></tr>
-              <tr><td>bundle_path</td><td>string | null</td><td class="req-no">no</td><td>POSIX-style relative path to this file inside a bundle, normally <code>assets/&lt;name&gt;</code>. Must use <code>/</code> separators and contain no empty, <code>.</code>, or <code>..</code> segments.</td></tr>
+              <tr><td>bundle_path</td><td>string | null</td><td class="req-no">no</td><td>POSIX-style relative path to this file inside a bundle, normally <code>assets/&lt;name&gt;</code>. Must use <code>/</code> separators and contain no empty, <code>.</code>, or <code>..</code> segments. Multiple Asset records may reference the same path.</td></tr>
               <tr><td>uri</td><td>string | null</td><td class="req-no">no</td><td>External or app-local URL. Importers should treat as fragile when no self-contained byte source is available.</td></tr>
               <tr><td>data_base64</td><td>string | null</td><td class="req-no">no</td><td>Base64-encoded payload (no data URI prefix).</td></tr>
               <tr><td>data_uri</td><td>string | null</td><td class="req-no">no</td><td>Full <code>data:&lt;mime&gt;;base64,&lt;...&gt;</code>. Inline data URIs belong here, not in <code>uri</code>.</td></tr>

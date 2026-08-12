@@ -30,7 +30,7 @@ This proposal is a starting point, not a finished spec.
 
 ## Delivery Formats
 
-OpenPlural may be delivered as a bare JSON document, or as a self-contained ZIP bundle with the canonical extension `.openplural.zip`. Importers may also accept `.openplural` as a compatibility alias, but must validate the content rather than trust the filename.
+OpenPlural may be delivered as a bare JSON document, or as a self-contained ZIP bundle with the canonical extension `.pluralport.zip`. Importers must also accept the legacy `.openplural.zip` extension. They may accept `.openplural` as an additional compatibility alias, but must validate the content rather than trust the filename. New exporters should emit `.pluralport.zip`; existing exporters may continue to emit `.openplural.zip` while applications transition. Both extensions carry the same v0.1 bundle and do not rename its wire identifiers.
 
 Bundle layout:
 
@@ -444,11 +444,11 @@ One thing still worth pressure-testing with adopters: `member_id` currently mean
 
 For v0.1, allow either:
 
-- `bundle_path` inside a `.openplural.zip` bundle.
+- `bundle_path` inside a `.pluralport.zip` or legacy `.openplural.zip` bundle.
 - Inline base64 or Data URI for self-contained bare JSON exports.
 - URI-only references when the source app can't include bytes.
 
-Importers should prefer valid self-contained bytes over external URIs, use content hashes for verification and dedupe, reject unsafe bundle paths and symbolic links, impose compressed and decompressed size limits, warn when a referenced bundle entry is missing, and avoid relying on URLs staying alive. A URI-only asset may be downloaded, preserved as a URI, or dropped with an `asset_external_dropped` warning.
+Importers should prefer valid self-contained bytes over external URIs, use content hashes for verification and dedupe, reject unsafe bundle paths and symbolic links, impose compressed and decompressed size limits, emit an `asset_bundle_missing` warning when a referenced bundle entry is missing, and avoid relying on URLs staying alive. Until Sheaf migrates to the core field, importers should recognize its current `extensions.sheaf.bundle_path` using the same path-safety rules. A URI-only asset may be downloaded, preserved as a URI, or dropped with an `asset_external_dropped` warning.
 
 ## Optional Modules
 
@@ -456,7 +456,7 @@ The following modules should be specified after core v0.1:
 
 - `chat`: conversations, messages, reactions, replies, attachments.
 - `boards`: member-addressed posts (walls, noteboards, board messages). Distinct from chat because the unit is a post with a target member, not a message in a thread.
-- `relationships` *(provisional)*: member-to-member edges (partner, parent_of, metamour, etc.) with a separate type vocabulary. PluralSpace emits compatible edge field names but omitted the referenced types in the inspected file; Sheaf ships typed member and group relationships with a richer symmetry/direction model under `extensions.sheaf`. Type directionality, per-edge mutuality, and group edges still need maintainer review.
+- `relationships` *(provisional)*: member-to-member edges (partner, parent_of, metamour, etc.) with a separate type vocabulary. PluralSpace emits compatible edge field names but omitted the referenced types in the inspected file; preserve those edges with a `dangling_reference` warning rather than inventing types. Sheaf ships typed member and group relationships with a richer symmetry/direction model under `extensions.sheaf`. Type directionality, per-edge mutuality, and group edges still need maintainer review.
 - `polls`: polls, options, votes.
 - `reminders`: periodic/event reminders.
 - `habits`: habits and completions.
@@ -517,6 +517,8 @@ Extension keys should be reverse-DNS or registered short app IDs. OpenPlural sho
 - `sheaf`
 - `openselves`
 - `ampersand`
+- `pluralspace`
+- `tupperbox`
 
 ## Validation
 
@@ -524,6 +526,7 @@ Near-term implementation should include:
 
 - JSON Schema for `openplural_version: "0.1"`.
 - Fixture files for each researched source app.
+- Negative bundle fixtures covering traversal, absolute paths, symbolic links, duplicate entry paths, decompression bombs, oversized assets, missing referenced entries, and unknown versions.
 - A validator CLI.
 - A loss-report schema.
 - Minimal reference converters for Prism, Simply Plural, PluralKit, and Plural Star.

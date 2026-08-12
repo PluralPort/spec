@@ -376,11 +376,12 @@ nav_active: spec
       <div class="panel">
         <h3>Expected importer behavior</h3>
         <ul class="contract-list">
-          <li>Validate the envelope and classify every unresolved cross-record reference before mutating app data.</li>
-          <li>Accept either a bare JSON envelope or a <code>.openplural.zip</code> bundle with root <code>openplural.json</code>; accepting <code>.openplural</code> as an alias is optional.</li>
+          <li>Validate the envelope and resolve every core cross-record reference before mutating app data. A provisional module may define an explicit preservation rule for an unresolved reference, such as relationships' <code>"dangling_reference"</code>; otherwise skip the affected record and report it.</li>
+          <li>Accept either a bare JSON envelope or a ZIP bundle with root <code>openplural.json</code>. Importers must accept both the canonical <code>.pluralport.zip</code> and legacy <code>.openplural.zip</code> extensions; accepting <code>.openplural</code> as an additional alias is optional.</li>
           <li>Treat a version marker and filename as detection hints only; validate the envelope and reject an unknown <code>openplural_version</code>.</li>
-          <li>Resolve <code>Asset.bundle_path</code> only inside the imported ZIP. Reject absolute paths, backslashes, drive prefixes, empty or dot segments, duplicate normalized names, and symbolic-link entries; never write an entry outside the importer's staging area.</li>
-          <li>Bound compressed upload size, total decompressed size, entry count, JSON size, and per-asset size. Warn with <code>"asset_bundle_missing"</code> when a referenced bundle entry is absent, and verify declared sizes and hashes when present.</li>
+          <li>Resolve <code>Asset.bundle_path</code> only inside the imported ZIP. For compatibility with Sheaf's shipped draft, when the core field is absent importers should also recognize <code>extensions.sheaf.bundle_path</code>, apply the same validation, and prefer valid bundled bytes over <code>uri</code>.</li>
+          <li>Reject absolute paths, backslashes, drive prefixes, empty or dot segments, duplicate ZIP entries that normalize to the same path, and symbolic-link entries; never write an entry outside the importer's staging area.</li>
+          <li>Bound compressed upload size, total decompressed size, entry count, JSON size, and per-asset size. Warn with <code>"asset_bundle_missing"</code> when a referenced bundle entry is absent. Importers should verify declared sizes and hashes when present.</li>
           <li>For a <code>uri</code>-only asset, an importer may download it, preserve the URI, or drop it. Dropping it must emit <code>"asset_external_dropped"</code>.</li>
           <li>Emit per-module counts: imported, skipped, degraded, preserved-only, failed.</li>
           <li>Keep raw unsupported module data when an archive area exists.</li>

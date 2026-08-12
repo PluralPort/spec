@@ -77,6 +77,7 @@ Counts in the inspected file:
 Conformance notes from this fixture:
 
 - The bundle uses `media/`, not the Sheaf-style `assets/`; because `assets[]` is empty, this should only inform importer tolerance, not the canonical exporter convention.
+- One of the two groups has a non-null `parent_group_id` referencing the other group, so the fixture contains an observed nested-group relationship rather than only an unused hierarchy field.
 - Many records emit `extensions: []` instead of the spec's `Record<string, unknown>` object, and some object extensions use un-namespaced keys such as `is_multiple` or a compound key like `pluralspace:moods`. Future PluralSpace exports should use `extensions.pluralspace.*`.
 - `relationships.edges[]` references `type_id` values, but `relationships.types[]` is empty. Importers should preserve those edges with a dangling-reference warning rather than inventing type definitions.
 - The export itself warns that its `polls[]` shape follows PluralSpace's interpretation because the OpenPlural polls module is not field-specified yet.

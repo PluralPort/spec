@@ -142,7 +142,7 @@ nav_active: adopt
         </table>
       </div>
       <div class="callout mt-14">
-        <p>The OpenPlural JSON export is good enough for systems, members, fronts, groups, tags, custom fields, and journals. For portable <code>assets[]</code>, prefer the <code>.openplural.zip</code> bundle over Sheaf's bare export: the bundle includes <code>openplural.json</code>, <code>README.txt</code>, and actual <code>assets/&lt;key&gt;</code> blobs. Sheaf can also import conformant inline <code>data_uri</code> / <code>data_base64</code> assets from other producers.</p>
+        <p>The OpenPlural JSON export is good enough for systems, members, fronts, groups, tags, custom fields, and journals. For portable <code>assets[]</code>, prefer Sheaf's <code>.openplural.zip</code> bundle over its bare export: the bundle includes <code>openplural.json</code>, <code>README.txt</code>, and actual <code>assets/&lt;key&gt;</code> blobs. Sheaf can also import referenced inline system/member avatars, member banners, and note attachments from <code>data_uri</code> / <code>data_base64</code>.</p>
       </div>
     </article>
 
