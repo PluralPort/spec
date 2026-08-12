@@ -5,8 +5,8 @@ nav_active: apps
 
 <section>
   <h1>Apps &amp; feature matrix</h1>
-  <p class="sub">The data shapes of nine plurality apps, side by side. A translation reference, not a ranking. Each row is what an app actually stores; OpenPlural's job is to be a shape all of them can round-trip through.</p>
-  <p>Prism and Sheaf have said they'd adopt this. The <a href="adopt.html">adoption guide</a> has their full mapping tables.</p>
+  <p class="sub">The data shapes of eleven plurality apps, side by side. A translation reference, not a ranking. Each row is what an app actually stores; OpenPlural's job is to be a shape all of them can round-trip through.</p>
+  <p>Sheaf and PluralSpace now ship OpenPlural surfaces, Prism has documented adoption intent, and PluralPort ships converters into the format. The <a href="adopt.html">adoption guide</a> has full Prism and Sheaf mapping tables.</p>
 </section>
 
 <section id="matrix">
@@ -43,7 +43,7 @@ nav_active: apps
         </tr>
         <tr>
           <td><b>Sheaf</b></td>
-          <td><code>/v1/export</code> JSON v2; async zip backup with images</td>
+          <td>OpenPlural JSON; <code>.openplural.zip</code> with <code>assets/</code>; native JSON v2</td>
           <td><span class="tag yes">Yes</span></td>
           <td>Co-front intervals</td>
           <td>Hierarchical groups + tags</td>
@@ -54,25 +54,25 @@ nav_active: apps
         </tr>
         <tr>
           <td>PluralSpace</td>
-          <td>ZIP with manifest + <code>data.json</code> v1.0 (GDPR export)</td>
+          <td>OpenPlural ZIP export + OpenPlural JSON/ZIP import UI; older GDPR <code>data.json</code></td>
           <td><span class="tag yes">Yes</span></td>
           <td>Per-member intervals; co-fronting via overlapping rows</td>
-          <td>Nested in app, flat in export (hierarchy dropped)</td>
+          <td>Nested groups in OpenPlural fixture; flat in older GDPR export</td>
           <td>Definitions; populated value shape unverified</td>
           <td>Journal entries with numeric visibility</td>
-          <td>Channels with embedded messages (no member ID)</td>
-          <td><code>media/</code> dir + avatar paths; <code>visibility</code> on system</td>
+          <td>Channels/messages in OpenPlural fixture</td>
+          <td><code>media/</code> dir observed; no asset bytes in inspected OpenPlural fixture</td>
         </tr>
         <tr>
           <td>Ampersand</td>
-          <td>No production interoperable export; <code>.ampar</code> self-backup only</td>
+          <td>Native JSON export consumed by PluralPort's OpenPlural converter; <code>.ampar</code> self-backup</td>
           <td><span class="tag yes">Yes</span></td>
           <td>Per-member intervals with main/influencing/custom-status/presence</td>
           <td>Typed tags + nested systems</td>
           <td>Definitions, string values on members</td>
           <td>Journal posts</td>
           <td>Board messages with polls</td>
-          <td>Imports SP / Octocon / PluralKit / Tupperbox</td>
+          <td>Inline data-URI assets; imports SP / Octocon / PluralKit / Tupperbox</td>
         </tr>
         <tr>
           <td>Lighthouse</td>
@@ -159,7 +159,7 @@ nav_active: apps
 <section id="apps">
   <div class="section-head">
     <h2>Per-app summaries</h2>
-    <p>Prism and Sheaf first because they've committed. PluralSpace next because it has by far the largest install base of the apps still in active use. The rest alphabetical. Each block has a mapping snippet and links to the upstream repo and our research notes.</p>
+    <p>Prism and Sheaf first because they have the worked adoption mappings. PluralSpace follows because it now ships both OpenPlural surfaces and has a large active user base. The rest are alphabetical. Each block has a mapping snippet and links to the upstream repo and our research notes.</p>
   </div>
 
   <article class="app-block panel" id="prism">
@@ -194,7 +194,10 @@ nav_active: apps
       FastAPI/PostgreSQL app with application-level encryption. Already exposes <code>/v1/export</code>
       returning JSON v2 with system, members, fronts, groups, tags, custom fields, journals,
       revision history, board messages, polls, reminders, watch-token notification config, and
-      uploaded-file inventory. A separate async export job also packages image bytes into a zip.
+      uploaded-file inventory, plus typed member/group relationships. It now also ships OpenPlural v0.1 directly: sync
+      <code>GET /v1/export?format=openplural</code> for JSON, plus an
+      <code>.openplural.zip</code> bundle with <code>openplural.json</code>,
+      <code>README.txt</code>, and image bytes under <code>assets/</code>.
     </p>
     <div class="table-wrap">
       <table>
@@ -209,7 +212,8 @@ nav_active: apps
           <tr><td><code>journals[]</code></td><td><a href="spec-records.html#note">Note</a></td></tr>
           <tr><td><code>messages[]</code> (system board + per-member walls, single-level replies)</td><td><a href="spec-modules.html#boardpost">BoardPost</a> (reply pointer lands in <code>extensions.sheaf</code> until <code>parent_post_id</code> lands)</td></tr>
           <tr><td><code>polls[]</code>, <code>reminders[]</code></td><td><code>extensions.sheaf.*</code> until polls/reminders modules land in v0.2</td></tr>
-          <tr><td><code>revisions[]</code>, <code>watch_tokens[]</code>, sync <code>uploaded_files[]</code></td><td>Best preserved in <code>extensions</code> today; the async zip is the better source for portable <a href="spec-records.html#asset">Asset</a> records</td></tr>
+          <tr><td><code>relationship_types[]</code>, <code>member_relationships[]</code>, <code>group_relationships[]</code></td><td><code>extensions.sheaf.*</code> today; restored by Sheaf's importer</td></tr>
+          <tr><td><code>revisions[]</code>, <code>watch_tokens[]</code>, sync <code>uploaded_files[]</code></td><td>Best preserved in <code>extensions.sheaf</code> today; the OpenPlural async bundle is the better source for portable <a href="spec-records.html#asset">Asset</a> records</td></tr>
         </tbody>
       </table>
     </div>
@@ -224,18 +228,22 @@ nav_active: apps
     <h3>PluralSpace</h3>
     <p class="app-sub">
       Web app at <a href="https://pluralspace.app/">pluralspace.app</a>. Separate product from
-      Plural Star despite the shared naming history. Current portable surface is a GDPR-style ZIP
-      (<code>manifest.json</code> + <code>data.json</code> v1.0); the shape documented here is
-      reconstructed from inspected sample exports, not a published schema. The public
-      <a href="https://pluralspace.app/developers">developers page</a> lists a REST API as
-      "Coming Soon" with a preview, but it isn't a usable surface yet — too early to call it the
-      long-term converter target. Per-member front rows (co-fronting via overlapping intervals),
-      system-level polls, embedded chat messages, journal entries with a numeric
-      <code>visibility_level</code>. Groups nest in the app but appear flat in the GDPR export.
+      Plural Star despite the shared naming history. Older inspected exports used a GDPR-style ZIP
+      (<code>manifest.json</code> + <code>data.json</code> v1.0). A newer production export now writes
+      <code>openplural.json</code> at the ZIP root and keeps an empty <code>media/</code> directory;
+      the first fixture had useful core/chat/poll/relationship data but no assets, no board posts,
+      and no populated custom-field values. The current production client also exposes an OpenPlural
+      JSON/ZIP import workflow with module toggles, preview, and asynchronous progress, although its
+      closed backend and field-level preservation behavior remain unverified. The public
+      <a href="https://pluralspace.app/developers">developers page</a> still lists its general REST API as
+      "Coming Soon", but that API is no longer a prerequisite for portability now that native OpenPlural
+      import/export surfaces exist. Treat the inspected export as supporting evidence for importer
+      tolerance, not the canonical ZIP layout for exporters; treat the importer UI as shipped adoption
+      evidence, not proof of round-trip parity.
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>PluralSpace shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>Older GDPR shape</th><th>OpenPlural target</th></tr></thead>
         <tbody>
           <tr><td><code>fronts[]</code>: one row per member, co-fronts share <code>started_at</code>/<code>ended_at</code></td><td><a href="spec-fronting.html#frontperiod">FrontPeriod</a> built by grouping rows on identical timestamps; one <a href="spec-fronting.html#frontassignment">FrontAssignment</a> per row</td></tr>
           <tr><td><code>members[].role</code> as free-text string array</td><td><a href="spec-records.html#taxonomyterm">TaxonomyTerm</a> (<code>kind: "role"</code>) + <a href="spec-records.html#taxonomyassignment">TaxonomyAssignment</a> per entry</td></tr>
@@ -257,18 +265,18 @@ nav_active: apps
   <article class="app-block panel" id="ampersand">
     <h3>Ampersand</h3>
     <p class="app-sub">
-      Offline-first Tauri/Vue app (alpha). <strong>No production interoperable export
-      today</strong> — the only normal Import/Export surface produces an <code>.ampar</code>
-      msgpack archive, which is a self-backup, not an inter-app format. Ampersand's interop
-      surface today is import-only: it consumes Simply Plural, Octocon, PluralKit, and
-      Tupperbox exports as a migration destination.
+      Offline-first Tauri/Vue app (alpha). Its Import/Export surface now produces both an
+      <code>.ampar</code> msgpack self-backup and a native JSON export. PluralPort ships an
+      in-browser converter from that JSON shape to OpenPlural v0.1, including inline images
+      in <code>Asset.data_uri</code>. This is external converter support, not a native OpenPlural
+      importer/exporter inside Ampersand.
     </p>
     <p class="app-sub">
       At a concept level it models systems with nesting, members with custom fronts, per-member
       fronting intervals with main/influencing/custom-status/presence metadata, typed tags
       scoped to members/journals/assets, custom fields with per-member string values, journal
-      posts, board messages with polls, and assets. Per-record field shapes are out of scope
-      here until a portable export ships.
+      posts, board messages with polls, and assets. It also imports Simply Plural, Octocon,
+      PluralKit, and Tupperbox exports as a migration destination.
     </p>
     <div class="app-meta">
       <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/ampersand.md">Research doc</a>

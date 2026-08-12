@@ -245,7 +245,7 @@ nav_active: spec
       </div>
 
       <div class="callout">
-        <p><b>Heads up:</b> this module is more provisional than the rest of v0.1. Only one inspected app (Lighthouse) currently exports any relationship data, and it's an opaque text field. PluralSpace's <a href="https://pluralspace.app/developers">developer page</a> previews relationship endpoints, but the API itself isn't released yet. The shape below is forward-looking and likely to shift once more apps implement it. Treat it as a sketch we'd like input on, not a settled design.</p>
+        <p><b>Heads up:</b> this module is more provisional than the rest of v0.1. PluralSpace now emits <code>relationships.edges[]</code> with the field names below, but the inspected file omitted every referenced type definition. Sheaf now ships typed member and group relationships, but keeps its native shape under <code>extensions.sheaf</code>: its type model uses <code>symmetry</code> plus forward/reverse labels, and its <code>either</code> mode adds per-edge mutuality. Lighthouse still has only denormalized text. These implementations validate the need for the module while showing that type directionality and group edges need maintainer review before this shape is settled.</p>
       </div>
 
       <article class="record" id="relationshiptype">
@@ -330,7 +330,7 @@ nav_active: spec
 }</code></pre>
 
       <div class="callout mt-14">
-        <p>Apps without relationships should preserve the whole <code>relationships</code> object as archive data and emit a <code>warning</code> with code <code>"module_archived_only"</code>. Lighthouse's denormalized text field can be parsed heuristically into multiple edges — that's lossy by definition; flag the parse with <code>warning</code> code <code>"relationships_parsed_from_text"</code>.</p>
+        <p>Apps without relationships should preserve the whole <code>relationships</code> object as archive data and emit a <code>warning</code> with code <code>"module_archived_only"</code>. Lighthouse's denormalized text field can be parsed heuristically into multiple edges — that's lossy by definition; flag the parse with <code>warning</code> code <code>"relationships_parsed_from_text"</code>. If an edge references a missing <code>RelationshipType</code>, preserve the edge and emit <code>"dangling_reference"</code> rather than inventing the type.</p>
       </div>
     </section>
 
@@ -376,7 +376,12 @@ nav_active: spec
       <div class="panel">
         <h3>Expected importer behavior</h3>
         <ul class="contract-list">
-          <li>Validate the envelope and resolve every cross-record reference before mutating app data.</li>
+          <li>Validate the envelope and classify every unresolved cross-record reference before mutating app data.</li>
+          <li>Accept either a bare JSON envelope or a <code>.openplural.zip</code> bundle with root <code>openplural.json</code>; accepting <code>.openplural</code> as an alias is optional.</li>
+          <li>Treat a version marker and filename as detection hints only; validate the envelope and reject an unknown <code>openplural_version</code>.</li>
+          <li>Resolve <code>Asset.bundle_path</code> only inside the imported ZIP. Reject absolute paths, backslashes, drive prefixes, empty or dot segments, duplicate normalized names, and symbolic-link entries; never write an entry outside the importer's staging area.</li>
+          <li>Bound compressed upload size, total decompressed size, entry count, JSON size, and per-asset size. Warn with <code>"asset_bundle_missing"</code> when a referenced bundle entry is absent, and verify declared sizes and hashes when present.</li>
+          <li>For a <code>uri</code>-only asset, an importer may download it, preserve the URI, or drop it. Dropping it must emit <code>"asset_external_dropped"</code>.</li>
           <li>Emit per-module counts: imported, skipped, degraded, preserved-only, failed.</li>
           <li>Keep raw unsupported module data when an archive area exists.</li>
           <li>Preserve <code>source_refs</code> on imported records when the target app has a place for them.</li>

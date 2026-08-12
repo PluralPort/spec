@@ -28,6 +28,23 @@ This proposal is a starting point, not a finished spec.
 7. **Files/assets are separate records.** Keeps profile records small enough to read and lets binary content be deduplicated, replaced, or omitted independently.
 8. **Warnings are part of the file.** Skipped, degraded, or repaired data is documented at export time so importers don't have to guess what's missing.
 
+## Delivery Formats
+
+OpenPlural may be delivered as a bare JSON document, or as a self-contained ZIP bundle with the canonical extension `.openplural.zip`. Importers may also accept `.openplural` as a compatibility alias, but must validate the content rather than trust the filename.
+
+Bundle layout:
+
+```text
+openplural.json
+README.txt        # recommended
+openplural-version-0.1  # optional empty detection marker
+assets/<path>     # files referenced by assets[].bundle_path
+```
+
+`openplural.json` is the same envelope shown below. Binary files should use `assets/`; importers may resolve a safe, explicitly referenced `media/` path from an older or provisional bundle, but exporters should not write new `media/` bundles or infer assets from an unreferenced directory. A version marker is only a detection hint; `openplural_version` in the envelope remains authoritative.
+
+Extra root files such as an app-specific `manifest.json` are allowed, but v0.1 does not standardize a manifest schema. Earlier bundle discussion used `export.json` and `Asset.path`; v0.1 standardizes `openplural.json` and `Asset.bundle_path` to match shipped envelopes and distinguish an archive entry from a URI. The v0.1 ZIP is plaintext and does not define an encrypted wrapper.
+
 ## Envelope
 
 ```json
@@ -68,6 +85,8 @@ This proposal is a starting point, not a finished spec.
   "warnings": []
 }
 ```
+
+`capabilities.modules` should list every populated core or optional section, but importers should treat it as a quick hint rather than the only source of truth. If a section is present and populated, importers should handle or preserve it even when the producer forgot to list it.
 
 ## IDs And Source References
 
@@ -409,8 +428,9 @@ One thing still worth pressure-testing with adopters: `member_id` currently mean
   "kind": "avatar",
   "mime_type": "image/png",
   "file_name": "avatar.png",
+  "bundle_path": "assets/avatar.png",
   "uri": null,
-  "data_base64": "...",
+  "data_base64": null,
   "data_uri": null,
   "size_bytes": 12345,
   "sha256": "...",
@@ -424,10 +444,11 @@ One thing still worth pressure-testing with adopters: `member_id` currently mean
 
 For v0.1, allow either:
 
-- Inline base64 or Data URI for self-contained exports.
+- `bundle_path` inside a `.openplural.zip` bundle.
+- Inline base64 or Data URI for self-contained bare JSON exports.
 - URI-only references when the source app can't include bytes.
 
-Importers should prefer content hashes for dedupe and shouldn't rely on URLs staying alive.
+Importers should prefer valid self-contained bytes over external URIs, use content hashes for verification and dedupe, reject unsafe bundle paths and symbolic links, impose compressed and decompressed size limits, warn when a referenced bundle entry is missing, and avoid relying on URLs staying alive. A URI-only asset may be downloaded, preserved as a URI, or dropped with an `asset_external_dropped` warning.
 
 ## Optional Modules
 
@@ -435,7 +456,7 @@ The following modules should be specified after core v0.1:
 
 - `chat`: conversations, messages, reactions, replies, attachments.
 - `boards`: member-addressed posts (walls, noteboards, board messages). Distinct from chat because the unit is a post with a target member, not a message in a thread.
-- `relationships` *(provisional)*: member-to-member edges (partner, parent_of, metamour, etc.) with a separate type vocabulary that supports symmetric and asymmetric types. More draft than the rest — only one inspected app currently exports any of this, and the design will likely shift once more apps implement it.
+- `relationships` *(provisional)*: member-to-member edges (partner, parent_of, metamour, etc.) with a separate type vocabulary. PluralSpace emits compatible edge field names but omitted the referenced types in the inspected file; Sheaf ships typed member and group relationships with a richer symmetry/direction model under `extensions.sheaf`. Type directionality, per-edge mutuality, and group edges still need maintainer review.
 - `polls`: polls, options, votes.
 - `reminders`: periodic/event reminders.
 - `habits`: habits and completions.

@@ -81,12 +81,12 @@ nav_active: spec
 
       <article class="record" id="capabilities">
         <h3>Capabilities</h3>
-        <p class="record-blurb">Declares which OpenPlural modules this file populates. Lets importers know what to expect without scanning every array.</p>
+        <p class="record-blurb">Declares which OpenPlural modules this file populates. Gives importers a quick preview hint before full validation.</p>
         <div class="table-wrap">
           <table class="field-table">
             <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
             <tbody>
-              <tr><td>modules</td><td>string[]</td><td class="req-yes">yes</td><td>Subset of: <code>"systems"</code>, <code>"members"</code>, <code>"groups"</code>, <code>"taxonomy"</code>, <code>"custom_fields"</code>, <code>"front_periods"</code>, <code>"front_events"</code>, <code>"front_comments"</code>, <code>"notes"</code>, <code>"assets"</code>, <code>"chat"</code>, <code>"boards"</code>, <code>"relationships"</code>, <code>"polls"</code>, <code>"reminders"</code>, <code>"habits"</code>, <code>"proxy"</code>, <code>"sharing"</code>, <code>"safety"</code>.</td></tr>
+              <tr><td>modules</td><td>string[]</td><td class="req-yes">yes</td><td>Subset of: <code>"systems"</code>, <code>"members"</code>, <code>"groups"</code>, <code>"taxonomy"</code>, <code>"custom_fields"</code>, <code>"front_periods"</code>, <code>"front_events"</code>, <code>"front_comments"</code>, <code>"notes"</code>, <code>"assets"</code>, <code>"chat"</code>, <code>"boards"</code>, <code>"relationships"</code>, <code>"polls"</code>, <code>"reminders"</code>, <code>"habits"</code>, <code>"proxy"</code>, <code>"sharing"</code>, <code>"safety"</code>. Exporters should list every populated core or optional section; importers should treat this as a hint and still handle sections present in the file.</td></tr>
             </tbody>
           </table>
         </div>
@@ -463,7 +463,7 @@ nav_active: spec
 
       <article class="record" id="asset">
         <h3>Asset</h3>
-        <p class="record-blurb">An image, file, or media blob. Records reference assets by ID instead of embedding bytes inline. Either inline <code>data_base64</code>/<code>data_uri</code> or external <code>uri</code>.</p>
+        <p class="record-blurb">An image, file, or media blob. Records reference assets by ID instead of embedding bytes inline. A self-contained bundle uses <code>bundle_path</code>; bare JSON can use inline <code>data_base64</code>/<code>data_uri</code> or an external <code>uri</code>.</p>
         <div class="table-wrap">
           <table class="field-table">
             <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
@@ -472,9 +472,10 @@ nav_active: spec
               <tr><td>kind</td><td>"avatar" | "banner" | "image" | "audio" | "video" | "file" | "thumbnail" | "unknown"</td><td class="req-yes">yes</td><td></td></tr>
               <tr><td>mime_type</td><td>string | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>file_name</td><td>string | null</td><td class="req-no">no</td><td></td></tr>
-              <tr><td>uri</td><td>string | null</td><td class="req-no">no</td><td>External URL. Importers should treat as fragile.</td></tr>
+              <tr><td>bundle_path</td><td>string | null</td><td class="req-no">no</td><td>POSIX-style relative path to this file inside a bundle, normally <code>assets/&lt;name&gt;</code>. Must use <code>/</code> separators and contain no empty, <code>.</code>, or <code>..</code> segments.</td></tr>
+              <tr><td>uri</td><td>string | null</td><td class="req-no">no</td><td>External or app-local URL. Importers should treat as fragile when no self-contained byte source is available.</td></tr>
               <tr><td>data_base64</td><td>string | null</td><td class="req-no">no</td><td>Base64-encoded payload (no data URI prefix).</td></tr>
-              <tr><td>data_uri</td><td>string | null</td><td class="req-no">no</td><td>Full <code>data:&lt;mime&gt;;base64,&lt;...&gt;</code>.</td></tr>
+              <tr><td>data_uri</td><td>string | null</td><td class="req-no">no</td><td>Full <code>data:&lt;mime&gt;;base64,&lt;...&gt;</code>. Inline data URIs belong here, not in <code>uri</code>.</td></tr>
               <tr><td>size_bytes</td><td>number | null</td><td class="req-no">no</td><td></td></tr>
               <tr><td>sha256</td><td>string | null</td><td class="req-no">no</td><td>Hex digest. Recommended for dedupe.</td></tr>
               <tr><td>width</td><td>number | null</td><td class="req-no">no</td><td>Pixels.</td></tr>
@@ -485,7 +486,7 @@ nav_active: spec
             </tbody>
           </table>
         </div>
-        <div class="callout mt-14"><p>An asset must populate at least one of <code>uri</code>, <code>data_base64</code>, or <code>data_uri</code>. Files with only <code>uri</code> should emit a <code>"warning"</code> with code <code>"asset_uri_only"</code> on export so importers know the asset isn't self-contained.</p></div>
+        <div class="callout mt-14"><p>An asset must populate at least one of <code>bundle_path</code>, <code>uri</code>, <code>data_base64</code>, or <code>data_uri</code>. Files with only <code>uri</code> should emit a <code>"warning"</code> with code <code>"asset_uri_only"</code> on export so importers know the asset isn't self-contained. A <code>bundle_path</code> is self-contained only when the referenced ZIP entry exists. When more than one byte source is present, importers should prefer a valid self-contained source over <code>uri</code> and verify <code>size_bytes</code> and <code>sha256</code> when supplied; disagreeing sources must produce a warning or error rather than being silently substituted.</p></div>
       </article>
     </section>
 
