@@ -60,6 +60,6 @@ A common file shape doesn't fix that on its own. But it makes "leave with your d
 
 - Short on time → just the [proposal draft](proposal.html).
 - A little more time → [spec hub](spec.html), then [apps](apps.html), then [adopt](adopt.html).
-- Want everything → the per-app research lives in [docs/](https://github.com/skylartaylor/openplural/tree/main/docs).
+- Want everything → the per-app research lives in [docs/](https://github.com/pluralport/spec/tree/main/docs).
 
 ---

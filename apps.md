@@ -184,7 +184,7 @@ nav_active: apps
     </div>
     <div class="app-meta">
       <a href="adopt.html#prism">Full Prism mapping</a>
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/prism.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/prism.md">Research doc</a>
     </div>
   </article>
 
@@ -215,7 +215,7 @@ nav_active: apps
     </div>
     <div class="app-meta">
       <a href="adopt.html#sheaf">Full Sheaf mapping</a>
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/sheaf.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/sheaf.md">Research doc</a>
       <a href="https://github.com/sheaf-project/sheaf">Repository</a>
     </div>
   </article>
@@ -249,7 +249,7 @@ nav_active: apps
       </table>
     </div>
     <div class="app-meta">
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/pluralspace.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/pluralspace.md">Research doc</a>
       <a href="https://pluralspace.app/">Website</a>
     </div>
   </article>
@@ -271,7 +271,7 @@ nav_active: apps
       here until a portable export ships.
     </p>
     <div class="app-meta">
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/ampersand.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/ampersand.md">Research doc</a>
       <a href="https://github.com/NyaomiDEV/Ampersand">Repository</a>
     </div>
   </article>
@@ -298,7 +298,7 @@ nav_active: apps
       </table>
     </div>
     <div class="app-meta">
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/lighthouse.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/lighthouse.md">Research doc</a>
       <a href="https://github.com/team-crystalline/Lighthouse">Repository</a>
     </div>
   </article>
@@ -340,7 +340,7 @@ nav_active: apps
       </table>
     </div>
     <div class="app-meta mt-14">
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/octocon.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/octocon.md">Research doc</a>
       <a href="https://github.com/OctoconDev/octocon">Backend repo</a>
       <a href="https://github.com/OctoconDev/app">App repo</a>
       <a href="https://octocon.app/docs">Public docs</a>
@@ -355,7 +355,7 @@ nav_active: apps
       Per-member front intervals; no groups, custom fields, notes, or chat.
     </p>
     <div class="app-meta">
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/openselves.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/openselves.md">Research doc</a>
       <a href="https://github.com/FreckleQueens/OpenSelves">Repository</a>
     </div>
   </article>
@@ -379,7 +379,7 @@ nav_active: apps
       </table>
     </div>
     <div class="app-meta">
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/pluralkit.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/pluralkit.md">Research doc</a>
       <a href="https://pluralkit.me/api/">API docs</a>
     </div>
   </article>
@@ -403,7 +403,7 @@ nav_active: apps
       </table>
     </div>
     <div class="app-meta">
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/plural-star.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/plural-star.md">Research doc</a>
       <a href="https://github.com/TheHanyou/Plural-Star">Repository</a>
     </div>
   </article>
@@ -429,7 +429,7 @@ nav_active: apps
       </table>
     </div>
     <div class="app-meta">
-      <a href="https://github.com/skylartaylor/openplural/blob/main/docs/apps/simply-plural.md">Research doc</a>
+      <a href="https://github.com/pluralport/spec/blob/main/docs/apps/simply-plural.md">Research doc</a>
       <a href="https://github.com/ApparyllisOrg/SimplyPluralApi">API source</a>
       <a href="https://apparyllis.com/simply-plural-will-be-discontinued/">Discontinuation notice</a>
     </div>

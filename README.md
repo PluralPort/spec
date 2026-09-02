@@ -1,23 +1,27 @@
-# OpenPlural Research Notes
+# Pluralport Specification
 
-**Site**: <https://skylartaylor.github.io/openplural/>
+**Website**: <https://pluralport.com/>
 
-OpenPlural is a research/proposal workspace for a portable plurality-system data format.
+**Canonical repository**: <https://github.com/pluralport/spec>
+
+Pluralport (formerly OpenPlural) is a research and specification workspace for
+a portable plurality-system data format.
 
 The initial goal is to compare existing app data shapes and identify a smallest useful common model that app developers can export/import once instead of writing pairwise converters for every other app.
 
-## Site
+## Specification Site
 
-The full site is at <https://skylartaylor.github.io/openplural/> (built from the `.md` files in this repo via GitHub Pages):
+The rendered specification is at <https://pluralport.github.io/spec/> (built
+from the `.md` files in this repository via GitHub Pages):
 
-- [Home](https://skylartaylor.github.io/openplural/) — overview, who's onboard, links
-- [Apps](https://skylartaylor.github.io/openplural/apps.html) — feature matrix and per-app summaries
-- [Spec hub](https://skylartaylor.github.io/openplural/spec.html) — conventions, envelope, shared fragments
-  - [Records](https://skylartaylor.github.io/openplural/spec-records.html) — field tables for 17 core records
-  - [Fronting](https://skylartaylor.github.io/openplural/spec-fronting.html) — periods, events, comments, assignments
-  - [Modules & contract](https://skylartaylor.github.io/openplural/spec-modules.html) — chat, boards, optional modules, importer contract
-- [Adoption guide](https://skylartaylor.github.io/openplural/adopt.html) — Prism + Sheaf mapping tables, maintainer guidance
-- [Proposal](https://skylartaylor.github.io/openplural/proposal.html) — the v0.1 proposal as a single page
+- [Home](https://pluralport.github.io/spec/) — overview, who's onboard, links
+- [Apps](https://pluralport.github.io/spec/apps.html) — feature matrix and per-app summaries
+- [Spec hub](https://pluralport.github.io/spec/spec.html) — conventions, envelope, shared fragments
+  - [Records](https://pluralport.github.io/spec/spec-records.html) — field tables for 17 core records
+  - [Fronting](https://pluralport.github.io/spec/spec-fronting.html) — periods, events, comments, assignments
+  - [Modules & contract](https://pluralport.github.io/spec/spec-modules.html) — chat, boards, optional modules, importer contract
+- [Adoption guide](https://pluralport.github.io/spec/adopt.html) — Prism + Sheaf mapping tables, maintainer guidance
+- [Proposal](https://pluralport.github.io/spec/proposal.html) — the v0.1 proposal as a single page
 
 ## Reference
 
