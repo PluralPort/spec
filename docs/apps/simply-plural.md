@@ -6,9 +6,12 @@ Sources:
 
 - API source: https://github.com/ApparyllisOrg/SimplyPluralApi
 - Discontinuation announcement: https://apparyllis.com/simply-plural-will-be-discontinued/
+- PluralPort converter: https://github.com/PluralSpace/PluralPort/blob/7df6357b7f4ee027e50431cf67540ff5715f4a41/app/lib/converters/sp-to-op.ts
 - Cross-referenced against Prism's and Lighthouse's importers, which consume the public token API.
 
 Simply Plural announced discontinuation on March 7, 2026, with servers shutting down July 1, 2026. Its API and export shape still matter because it has a large installed base and many migration paths.
+
+PluralPort's converter at snapshot `7df6357b7f4ee027e50431cf67540ff5715f4a41` calls the public token API and maps members, groups, front history, notes, custom fronts, and polls into a bare OpenPlural v0.1 JSON file. That source supports the converter claim in this repository, but the server shutdown means it is implementation evidence rather than proof that the token flow remains usable today.
 
 ## API And Export Shape
 

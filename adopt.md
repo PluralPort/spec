@@ -6,7 +6,7 @@ nav_active: adopt
 <section>
   <h1>Adoption guide</h1>
   <p class="sub"><span class="draft">draft v0.1</span>If you're considering an exporter or importer for your app, this is the page that argues it's worth your time.</p>
-  <p>Two apps have committed: <b>Prism</b> and <b>Sheaf</b>. Below are full mapping tables for each app's existing export shape against OpenPlural v0.1, followed by shorter notes for Simply Plural, PluralKit, and Plural Star.</p>
+  <p><b>Sheaf</b> now ships OpenPlural import/export and <b>Prism</b> has documented adoption intent. Below are full mapping tables for those two implementations, followed by shorter notes for other paths. PluralSpace's shipped import/export surfaces are documented on the <a href="apps.html#pluralspace">apps page</a> while richer fixtures remain pending.</p>
 </section>
 
 <section id="legend">
@@ -86,8 +86,9 @@ nav_active: adopt
     <article class="adopt-card" id="sheaf">
       <h3>Sheaf <span class="who-status">Adopter</span></h3>
       <p class="adopt-sub">
-        <code>/v1/export</code> JSON v2, plus an async zip export with image bytes. FastAPI/PostgreSQL
-        with application-level encryption (decrypted on export). Source of truth:
+        <code>/v1/export</code> JSON v2, plus OpenPlural JSON and <code>.openplural.zip</code>
+        export/import support. FastAPI/PostgreSQL with application-level encryption (decrypted on export).
+        Source of truth: <code>sheaf/services/openplural_export.py</code> and
         <code>docs/apps/sheaf.md</code>.
       </p>
       <div class="table-wrap">
@@ -99,7 +100,7 @@ nav_active: adopt
             <tr><td>system.avatar_url</td><td>Asset (uri-only) + System.avatar_asset_id</td><td><span class="tag tag-normalize">normalize</span></td></tr>
             <tr><td>system.color</td><td>System.color</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>system.privacy</td><td>System.privacy.visibility</td><td><span class="tag tag-direct">direct</span></td></tr>
-            <tr><td>system.date_format, replace_fronts_default</td><td>extensions.sheaf.*</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>system.date_format, timezone, replace_fronts_default, coalesce_contiguous_fronts, show_member_created_date</td><td><code>extensions.sheaf.*</code></td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>system.delete_confirmation, safety, retention</td><td>safety module (when v0.2 lands); otherwise <code>extensions.sheaf.*</code></td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>system.note (decrypted)</td><td><code>extensions.sheaf.note</code> (separate from description; encrypted at rest in Sheaf)</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>members[].id</td><td>Member.id</td><td><span class="tag tag-direct">direct</span></td></tr>
@@ -115,6 +116,7 @@ nav_active: adopt
             <tr><td>members[].is_custom_front</td><td>Member.is_custom_front</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>members[].emoji</td><td><code>extensions.sheaf.emoji</code> (Prism has an analogous field; candidate for a shared optional in a later spec)</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>members[].note (decrypted)</td><td><code>extensions.sheaf.note</code> (separate from description; encrypted at rest in Sheaf)</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>members[].never_shareable, fronting_private</td><td><code>extensions.sheaf.*</code> protective sharing/fronting guards</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>members[].created_at</td><td>Member.created_at</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>fronts[].id, started_at, ended_at</td><td>FrontPeriod.id, started_at, ended_at</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>fronts[].member_ids</td><td>FrontPeriod.assignments[] (one per id, role: "member")</td><td><span class="tag tag-normalize">normalize</span></td></tr>
@@ -127,11 +129,12 @@ nav_active: adopt
             <tr><td>custom_fields[].id, name, field_type, options, order, privacy</td><td>CustomFieldDefinition (options accepts <code>string[] | Record&lt;string, unknown&gt; | null</code> since Sheaf stores it as JSONB <code>dict | None</code>)</td><td><span class="tag tag-transform">transform</span></td></tr>
             <tr><td>custom_fields[].values[] (member_id, value)</td><td>CustomFieldValue (subject_type: "member")</td><td><span class="tag tag-normalize">normalize</span></td></tr>
             <tr><td>journals[].id, member_id, title, body, visibility, author_member_ids, created_at, updated_at</td><td>Note</td><td><span class="tag tag-direct">direct</span></td></tr>
-            <tr><td>journals[].image_keys + async zip <code>images/&lt;key&gt;</code></td><td>Asset + Note.attachment_asset_ids</td><td><span class="tag tag-normalize">normalize</span></td></tr>
+            <tr><td>journals[].image_keys + OpenPlural async zip <code>assets/&lt;key&gt;</code></td><td>Asset + Note.attachment_asset_ids; current Sheaf writes <code>extensions.sheaf.bundle_path</code> + <code>uri</code>, with core <code>bundle_path</code> as the target</td><td><span class="tag tag-normalize">normalize</span></td></tr>
             <tr><td>messages[] (board posts: system board + per-member walls)</td><td>boards.posts[] (with caveats; see separate issue on <code>parent_post_id</code>)</td><td><span class="tag tag-transform">transform</span></td></tr>
             <tr><td>messages[].parent_message_id (single-level reply pointer)</td><td><code>extensions.sheaf.parent_message_id</code> until <code>BoardPost.parent_post_id</code> lands</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>polls[], poll.options[], poll.votes[], poll.events[]</td><td><code>extensions.sheaf.polls</code> until the polls module lands in v0.2</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>reminders[]</td><td><code>extensions.sheaf.reminders</code> until the reminders module lands in v0.2</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>relationship_types[], member_relationships[], group_relationships[]</td><td><code>extensions.sheaf.*</code> today; Sheaf restores this native extension shape, while foreign top-level <code>relationships</code> remains archive-only</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>sync <code>uploaded_files[]</code> inventory without bytes</td><td><code>extensions.sheaf.uploaded_files</code> unless paired with the async zip</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>revisions[] (journal/member-bio edit history)</td><td><code>extensions.sheaf.revisions</code> until OpenPlural grows a revision-history shape</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>watch_tokens[] + channels[]</td><td><code>extensions.sheaf.watch_tokens</code> until OpenPlural grows a notifications/export module</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
@@ -139,7 +142,7 @@ nav_active: adopt
         </table>
       </div>
       <div class="callout mt-14">
-        <p>The sync JSON export is now good enough for systems, members, fronts, groups, tags, custom fields, and journals. For portable <code>assets[]</code>, prefer Sheaf's async zip export over bare <code>/v1/export</code>: the zip includes the actual <code>images/&lt;key&gt;</code> blobs, while the sync JSON only has avatar URLs and uploaded-file inventory metadata.</p>
+        <p>The OpenPlural JSON export is good enough for systems, members, fronts, groups, tags, custom fields, and journals. For portable <code>assets[]</code>, prefer Sheaf's <code>.openplural.zip</code> bundle over its bare export: the bundle includes <code>openplural.json</code>, <code>README.txt</code>, and actual <code>assets/&lt;key&gt;</code> blobs. Sheaf can also import referenced inline system/member avatars, member banners, and note attachments from <code>data_uri</code> / <code>data_base64</code>.</p>
       </div>
     </article>
 
@@ -175,7 +178,7 @@ nav_active: adopt
   <div class="maintainer-grid">
     <div class="maintainer-card">
       <b>One exporter beats N converters</b>
-      <p>If you map your internal records to OpenPlural's core, you're done — every other app's importer handles the rest. Pairwise converters are how you end up maintaining nine of them.</p>
+      <p>If you map your internal records to OpenPlural's core, you're done — every other app's importer handles the rest. Pairwise converters are how you end up maintaining one for every other app.</p>
     </div>
     <div class="maintainer-card">
       <b>Partial imports are still wins</b>

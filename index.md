@@ -19,7 +19,7 @@ OpenPlural is a proposed file shape that any app can export to and import from. 
 
 ## where it stands
 
-Two app maintainers — [Prism](adopt.html#prism) and [Sheaf](adopt.html#sheaf) — have said they'd try this if the spec is good. We've [researched seven others](apps.html) to make sure the shape covers what real apps actually store. The spec is at draft v0.1 — meaning we'd rather argue with you about a wrong spec now than ship a confident one that's wrong later.
+[Sheaf](adopt.html#sheaf) now ships native OpenPlural JSON/ZIP import and export. PluralSpace ships an OpenPlural export and a user-facing JSON/ZIP import flow, while [Prism](adopt.html#prism) has documented adoption intent. PluralPort also converts Simply Plural and Ampersand data into OpenPlural. We've [researched eleven apps](apps.html) to keep the shape grounded in what real apps store. The spec remains draft v0.1 — we'd rather resolve incompatible details now than ship a confident format that's wrong later.
 
 Things that are still open:
 
@@ -31,7 +31,7 @@ Things that are still open:
 
 - **App maintainers** — read the [spec draft](spec.html) and tell us where it doesn't fit your data model. The [adoption guide](adopt.html) has the mapping tables for Prism and Sheaf as worked examples.
 - **Users of plurality apps** — if you've migrated between apps, what did you lose? What was painful? Send a note.
-- **Anyone** — the [per-app research](apps.html) covers nine apps. If we got something about your app wrong, please correct us.
+- **Anyone** — the [per-app research](apps.html) covers eleven apps. If we got something about your app wrong, please correct us.
 
 ## what's in the file
 

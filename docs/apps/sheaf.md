@@ -5,10 +5,14 @@
 Sources:
 
 - Repository: https://github.com/sheaf-project/sheaf
+- Source snapshot inspected: `96c17ef1e36b6be70f8f683ebde78cf06ced75fc` (2026-08-12).
 - Export route: `sheaf/api/v1/export.py`
 - Async export builder: `sheaf/services/export_builder.py`
+- OpenPlural exporter: `sheaf/services/openplural_export.py`
+- OpenPlural importer: `sheaf/services/openplural_import.py`, `sheaf/services/openplural_import_runner.py`
+- OpenPlural implementation notes: `docs/OPENPLURAL.md`
 - Sheaf-import endpoints: `sheaf/api/v1/sheaf_import.py`, `sheaf/services/sheaf_import.py`
-- Coverage: `tests/test_export.py`, `tests/test_account_export_completeness.py`
+- Coverage: `tests/test_export.py`, `tests/test_account_export_completeness.py`, `tests/test_openplural_export.py`, `tests/test_imports_openplural_runner.py`, `tests/test_openplural_parity.py`
 - Changelog: `CHANGELOG.md`
 
 ## Storage And API Shape
@@ -16,6 +20,14 @@ Sources:
 Sheaf is a FastAPI/PostgreSQL application. It uses SQLAlchemy models and application-level encryption for sensitive member, journal, revision, and notification-secret content.
 
 The current sync `/v1/export` route returns JSON `version: "2"`. There is also an async `POST /v1/export/jobs` flow that writes a zip containing the same `export.json` plus `images/<key>` blobs for uploaded files.
+
+Current source also ships OpenPlural directly:
+
+- Sync JSON: `GET /v1/export?format=openplural`, a bare OpenPlural v0.1 envelope.
+- Async bundle: an `.openplural.zip` with root `openplural.json`, `README.txt`, and bundled blobs under `assets/`.
+- Import: `source=openplural_file` accepts either bare JSON or a ZIP bundle and rejects unknown `openplural_version` values. The upload UI accepts generic `.zip` filenames and the backend detects ZIP content from its bytes, so the filename is not limited to `.openplural.zip`.
+
+Sheaf ships this as a native OpenPlural v0.1 exporter and importer, and is one of the format's founding adopters. Both export shapes stamp `producer` (`app`, `app_id: "sheaf"`, `app_version`, `exporter_version`) and append an `extensions.sheaf.lineage[]` entry per export. `pluralkit_id` is emitted as a `source_ref`. Sheaf-native data without a settled v0.1 core shape is preserved under the registered `sheaf` namespace, including note fields, polls, reminders, revisions, notification config, System Safety and display settings, member convenience/privacy guards, relationship tables, and the board-post reply pointer. That makes a Sheaf-to-OpenPlural-to-Sheaf round-trip lossless for those native surfaces.
 
 ```json
 {
@@ -28,6 +40,12 @@ The current sync `/v1/export` route returns JSON `version: "2"`. There is also a
   "custom_fields": [],
   "journals": [],
   "revisions": [],
+  "messages": [],
+  "polls": [],
+  "reminders": [],
+  "relationship_types": [],
+  "member_relationships": [],
+  "group_relationships": [],
   "watch_tokens": [],
   "uploaded_files": []
 }
@@ -46,7 +64,10 @@ If a user has no system, export returns `system: null` and empty arrays for ever
 - Encrypted `note` (separate from `description`; decrypted on export).
 - `privacy`: `public`, `friends`, or `private`.
 - `date_format`: `dmy`, `mdy`, or `ymd`.
+- `timezone`: global display-timezone preference.
 - `replace_fronts_default`: whether starting a front ends open fronts by default.
+- `coalesce_contiguous_fronts`: whether adjacent periods are combined.
+- `show_member_created_date`: whether member creation dates are shown.
 - `delete_confirmation`: auth tier enum reused by System Safety (`none`, `password`, `totp`, `both`).
 - System Safety settings:
   - `grace_period_days`.
@@ -60,7 +81,7 @@ If a user has no system, export returns `system: null` and empty arrays for ever
 Current export includes both profile fields and these preference/safety/retention blocks:
 
 - `id`, `name`, `description`, `note`, `tag`, `avatar_url`, `color`, `privacy`.
-- `replace_fronts_default`, `date_format`, `delete_confirmation`.
+- `replace_fronts_default`, `coalesce_contiguous_fronts`, `show_member_created_date`, `date_format`, `timezone`, `delete_confirmation`.
 - `safety`.
 - `retention`.
 
@@ -75,11 +96,12 @@ Current export includes both profile fields and these preference/safety/retentio
 - `is_custom_front`: boolean flag distinguishing custom fronts from members.
 - Encrypted `note` (separate from `description`; decrypted on export).
 - `privacy`.
+- `never_shareable` and `fronting_private`: protective sharing/fronting guards.
 - Relationships to fronts, groups, tags, custom field values.
 
 Export decrypts name, description, and note:
 
-- `id`, `name`, `display_name`, `description`, `pronouns`, `avatar_url`, `color`, `birthday`, `pluralkit_id`, `emoji`, `is_custom_front`, `privacy`, `note`, `created_at`.
+- `id`, `name`, `display_name`, `description`, `pronouns`, `avatar_url`, `color`, `birthday`, `pluralkit_id`, `emoji`, `is_custom_front`, `privacy`, `never_shareable`, `fronting_private`, `note`, `created_at`.
 
 ### Fronts
 
@@ -228,6 +250,15 @@ Export:
 - `votes[]` with `voted_as_member_id`, `option_ids[]`, `created_at`, `updated_at`.
 - `events[]` with `id`, `voted_as_member_id`, `action`, `option_ids[]`, `fronting_member_ids[]`, `actor_user_id`, `created_at`.
 
+### Relationships
+
+Sheaf now has user-defined relationship types shared by member-to-member and group-to-group edges:
+
+- `relationship_types[]`: `id`, `name`, `symmetry` (`symmetric`, `directional`, or `either`), `forward_label`, and optional `reverse_label`.
+- `member_relationships[]` and `group_relationships[]`: `source_id`, `target_id`, `relationship_type_id`, `mutual`, `visibility`, and `created_at`.
+
+The native export and self-importer round-trip all three arrays. The OpenPlural exporter currently preserves them under file-level `extensions.sheaf.relationship_types`, `extensions.sheaf.member_relationships`, and `extensions.sheaf.group_relationships`, and the OpenPlural importer restores that Sheaf-owned shape. It does not translate a foreign top-level `relationships` module into Sheaf rows; that whole module is retained in the encrypted residual archive and re-emitted later.
+
 ### Reminders
 
 `Reminder`:
@@ -278,10 +309,19 @@ For bytes, the async export job zip contains:
 - `README.txt`.
 - `images/<key>` blobs for every uploaded file the user owns.
 
-That means Sheaf now has two distinct portability surfaces:
+For OpenPlural bytes, the async OpenPlural bundle contains:
+
+- `openplural.json`.
+- `README.txt`.
+- `assets/<key>` blobs referenced by OpenPlural `assets[]` entries.
+
+Current Sheaf source predates this draft's first-class `Asset.bundle_path` field, so it records the in-zip path under `extensions.sheaf.bundle_path` and leaves `uri` populated for compatibility. That implementation detail is the strongest evidence for promoting bundle paths into the core Asset record; new exporters should use `Asset.bundle_path`, while importers may recognize Sheaf's extension during the transition.
+
+That means Sheaf now has three distinct portability surfaces:
 
 - sync JSON for structured records.
 - async zip for structured records plus image bytes.
+- OpenPlural JSON/zip for cross-app interchange.
 
 ### Client Settings And Account Data
 
@@ -289,32 +329,22 @@ That means Sheaf now has two distinct portability surfaces:
 
 ## Imports
 
-Sheaf has:
+Imports run through an async job runner (`POST /v1/imports/file`, polled for status). Sheaf ships importers for its own export, an export-with-images archive, and several foreign formats: PluralKit (file and API), Tupperbox, Simply Plural, PluralSpace, Prism, Ampersand, and OpenPlural.
 
-- A Simply Plural import service.
-- A Sheaf import service for its own export format.
+The native self-importer has caught up to export v2. It accepts `version` `"1"` or `"2"` and round-trips the full export, including the data an earlier snapshot of this page noted it could not:
 
-But the current self-import path has not caught up to export v2 yet:
+- system profile plus preferences (`date_format`, `timezone`, `replace_fronts_default`, `coalesce_contiguous_fronts`, `show_member_created_date`, `delete_confirmation`) and the `safety` / `retention` blocks.
+- members, fronts, groups, tags, custom fields and values.
+- journals and content revisions.
+- board messages and polls (with their audit events).
+- relationship types and member/group relationship edges.
+- reminders and the watch-token / notification-channel config.
 
-- `sheaf/api/v1/sheaf_import.py` still rejects any file whose `version` is not `"1"`.
-- `sheaf/services/sheaf_import.py` only restores:
-  - basic system profile fields (`name`, `description`, `tag`, `color`, `privacy`).
-  - members.
-  - fronts.
-  - groups.
-  - tags.
-  - custom fields and values.
+Re-import is idempotent: members dedupe against the target roster, everything else dedupes by preserved source timestamps, and a chosen conflict strategy decides skip / update / create. Every importer enforces a tier member cap, routes decoded JSON through a json-bomb-guarded loader, bounds decompressed archive size, and normalises foreign avatar URLs through the same policy gate the create API uses.
 
-It does **not** currently import v2-only data such as:
+The OpenPlural importer translates the envelope back to Sheaf's native import shape, then delegates to the existing importer. For a ZIP bundle, it hands a parsed archive with `asset_prefix: "assets/"` to the archive importer so image bytes are restored through the same upload/quota/normalization path as native Sheaf archives. Bare JSON restores inline system and member avatars, member banners, and note attachments carried in `data_uri` or `data_base64` through that same image pipeline; it also tolerates the known producer mistake of placing a `data:` URI in `uri`. Unreferenced inline assets are not imported. It reads `front_periods` and derives intervals from `front_events` (the switch-log shape), and rejects any unfamiliar `openplural_version`.
 
-- system preferences (`date_format`, `replace_fronts_default`, `delete_confirmation`).
-- `safety` / `retention`.
-- journals.
-- revisions.
-- watch tokens / channels.
-- uploaded-file inventory.
-
-So the upstream changelog's "re-importable" claim is ahead of the checked-in parser at this snapshot.
+Unsupported OpenPlural data is not silently dropped. Current source preserves file-level foreign extensions and whole unsupported sections such as `chat`, `relationships`, `front_comments`, and non-tag taxonomy in an encrypted residual archive on the Sheaf system, then re-merges that data into later OpenPlural exports. Per-record foreign extension preservation is still called out in Sheaf's changelog as a follow-up.
 
 ## Import/Interoperability Notes
 
@@ -332,9 +362,11 @@ The remaining gaps are not all the same kind:
 
 - `revisions[]` has no first-class OpenPlural record today; preserve it under `extensions` if needed.
 - `messages[]` map to the boards module, but the single-level reply pointer (`parent_message_id`) has no v0.1 home and lands in `extensions.sheaf` unless `BoardPost` grows a reply field.
+- Sheaf-native relationship tables round-trip under `extensions.sheaf`; the draft top-level `relationships` module remains preserved-only rather than being translated into Sheaf rows.
 - `polls[]` and `reminders[]` are full Sheaf surfaces but neither has a v0.1 module; both fit under `extensions.sheaf` as preserved-only until the relevant modules land.
 - `watch_tokens[]` likewise fits best in `extensions` until there is a notification/export module.
 - `uploaded_files[]` in sync JSON is inventory-only metadata, not enough by itself to emit self-contained OpenPlural `assets[]`.
-- The async zip is the better converter target when image portability matters, because it actually includes the `images/<key>` blobs referenced by journal `image_keys`.
+- The native async zip is the better converter target for Sheaf-native restores, because it includes the `images/<key>` blobs referenced by journal `image_keys`.
+- The OpenPlural async zip is the better cross-app target, because it includes `openplural.json` plus `assets/<key>` blobs and importer coverage for that shape.
 
-It also shows a useful implementation boundary: exporter coverage has moved ahead of importer coverage. OpenPlural conformance should test actual exported and imported modules separately, not assume round-trip parity inside the source app.
+OpenPlural conformance should still test exported and imported modules separately rather than assuming round-trip parity inside any one app. Sheaf now covers its own exported relationship extension and inline assets on import, but foreign top-level relationships and per-record foreign extensions remain distinct preservation-only boundaries.
