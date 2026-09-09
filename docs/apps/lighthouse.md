@@ -37,7 +37,7 @@ The app has:
 
 The exporter decodes base64 profile fields and decrypts AES fields before writing CSV.
 
-The export covers more than the alter/journal core: `bdaPlan` (before/during/after plans), `innerWorlds`, `rules`, `wishlist`, communal journals, and the forum surface (`categories`, `threads`, `threadPosts`) all ship in the same ZIP. Most of these have no OpenPlural module today and would land in `extensions` for a converter built against this export. The `safetyplans` table appears in the schema but isn't part of the export route.
+The export covers more than the alter/journal core: `bdaPlan` (before/during/after plans), `innerWorlds`, `rules`, `wishlist`, communal journals, and the forum surface (`categories`, `threads`, `threadPosts`) all ship in the same ZIP. Most of these have no PluralPort module today and would land in `extensions` for a converter built against this export. The `safetyplans` table appears in the schema but isn't part of the export route.
 
 ## Public Token API
 
@@ -136,7 +136,7 @@ These importers are narrow compared to Lighthouse's internal alter profile.
 
 Lighthouse argues for:
 
-- CSV import/export support in OpenPlural tooling, even if the canonical spec is JSON.
+- CSV import/export support in PluralPort tooling, even if the canonical spec is JSON.
 - Rich member profile extension fields for triggers, roles, accommodations, source, front tells, relationships, etc.
 - Journal import/export support.
 - A clear way to mark unsupported or not-yet-shipped fronting models.

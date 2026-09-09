@@ -140,12 +140,12 @@ Additional optional modules:
 
 ## Import/Interoperability Notes
 
-Prism has Simply Plural and PluralKit importers. Its current shape is broader than most other tools: fronting, members, groups, custom fields, chat, polls, habits, reminders, media, and local sharing all need either OpenPlural core support or extension modules.
+Prism has Simply Plural and PluralKit importers. Its current shape is broader than most other tools: fronting, members, groups, custom fields, chat, polls, habits, reminders, media, and local sharing all need either PluralPort core support or extension modules.
 
-For OpenPlural, Prism argues for:
+For PluralPort, Prism argues for:
 
 - Overlapping per-member front intervals as a first-class model.
 - Front comments anchored by time, not only by session ID.
 - Separate asset records instead of embedding images everywhere.
 - Optional modules for chat, boards, polls, habits, reminders, and friend sharing.
-- A boards module distinct from chat — the unit is a member-targeted post, not a thread message, and Prism's `member_board_posts` shape (title, audience, target, written_at) doesn't fit ChatMessage cleanly. The fact that boards are sync-only today (not in `.prism` export) also means their shape needs to be explicit at the OpenPlural layer, since the source app currently has no portable serialization to map from.
+- A boards module distinct from chat — the unit is a member-targeted post, not a thread message, and Prism's `member_board_posts` shape (title, audience, target, written_at) doesn't fit ChatMessage cleanly. The fact that boards are sync-only today (not in `.prism` export) also means their shape needs to be explicit at the PluralPort layer, since the source app currently has no portable serialization to map from.

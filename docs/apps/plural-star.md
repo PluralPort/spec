@@ -200,7 +200,7 @@ Options contain `id`, `label`, and member-ID votes.
 
 Plural Star imports its own backup JSON, Simply Plural, and PluralKit. The Simply Plural import path groups overlapping per-member SP front rows into combined history entries and maps SP groups/custom fields into Plural Star's flat local models.
 
-For OpenPlural, it argues for:
+For PluralPort, it argues for:
 
 - Supporting tiered front roles (`primary`, `co_front`, `co_conscious`) rather than only a flat member list.
 - Export-time asset dictionaries or a generic assets module.
