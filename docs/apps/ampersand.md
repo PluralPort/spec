@@ -36,7 +36,7 @@ Ampersand's import surface is the more relevant interop story today — it's a m
 - Octocon.
 - Tupperbox.
 
-## Notes For OpenPlural
+## Notes For PluralPort
 
 - Don't treat the `.ampar` archive as an interop contract — it's a self-format.
-- The import-from list above is the real touchpoint: anything OpenPlural ships that can produce a Simply Plural / Octocon / PluralKit / Tupperbox export becomes importable into Ampersand by extension.
+- The import-from list above is the real touchpoint: anything PluralPort ships that can produce a Simply Plural / Octocon / PluralKit / Tupperbox export becomes importable into Ampersand by extension.

@@ -24,7 +24,7 @@ Octocon is a distributed Elixir monolith. The backend is split into:
 
 Schemas use Ecto with `Exandra` for ScyllaDB. Most records are keyed by a 7-character lowercase user ID (`^[a-z]{7}$`) plus a per-record ID (UUID for tags/journals/polls/fronts, small integer up to 32,767 for alters).
 
-A user-facing export exists today only through the Discord bot: `lib/octocon_discord/commands/export.ex` exposes a slash command that calls `Octocon.Accounts.gather_export_data/1` and then either `format_pk_export/1` (PluralKit-compatible v2 datafile) or `format_full_export/1` (Octocon-native JSON, currently not consumed by any other platform). The "full" variant is the closest thing to a portable Octocon shape and is what an OpenPlural importer would target.
+A user-facing export exists today only through the Discord bot: `lib/octocon_discord/commands/export.ex` exposes a slash command that calls `Octocon.Accounts.gather_export_data/1` and then either `format_pk_export/1` (PluralKit-compatible v2 datafile) or `format_full_export/1` (Octocon-native JSON, currently not consumed by any other platform). The "full" variant is the closest thing to a portable Octocon shape and is what an PluralPort importer would target.
 
 ## Records
 
@@ -126,7 +126,7 @@ Lives directly on the alter (`discord_proxies`, `proxy_name`) plus user-level `d
 
 ### Messages, polls subscribers, server settings, etc.
 
-`lib/octocon/messages.ex`, `lib/octocon/server_settings/`, `lib/octocon/channel_blacklists/` and similar exist but are out of scope for OpenPlural's portable model and shape not surveyed in detail.
+`lib/octocon/messages.ex`, `lib/octocon/server_settings/`, `lib/octocon/channel_blacklists/` and similar exist but are out of scope for PluralPort's portable model and shape not surveyed in detail.
 
 ## Export Shape
 
@@ -150,7 +150,7 @@ Gaps versus the on-disk model:
 - Alters drop `security_level`, `untracked`, `archived`, `pinned`, `alias`, `last_fronted`, `extra_images`, timestamps.
 - No system-tag / autoproxy info.
 
-The PK export (`format_pk_export/1`) is a PluralKit datafile v2: `name`, `description`, `avatar_url`, `members[]` (with `proxy_tags` parsed from `discord_proxies`), `groups[]` (built from tags, indexed by position), `switches: []` (always empty — switch history isn't ported). It exists for one-way migration to PluralKit, not as an OpenPlural source.
+The PK export (`format_pk_export/1`) is a PluralKit datafile v2: `name`, `description`, `avatar_url`, `members[]` (with `proxy_tags` parsed from `discord_proxies`), `groups[]` (built from tags, indexed by position), `switches: []` (always empty — switch history isn't ported). It exists for one-way migration to PluralKit, not as an PluralPort source.
 
 ## Imports
 
@@ -178,13 +178,13 @@ Per the public app docs and the worker filename, imports members and groups only
 
 ## Import/Interoperability Notes
 
-For OpenPlural's purposes:
+For PluralPort's purposes:
 
 - Octocon's alter shape is recognizable: name/pronouns/description/avatar/color plus typed custom-field values. The `untracked` flag is a first-class concept for "this is a non-alter front identity (e.g. SP custom front)" and maps cleanly to a Member with that flag in extensions, similar to Simply Plural's `is_custom_front`.
-- Fronting is per-member intervals with a short comment, not grouped periods. An OpenPlural converter should emit one `FrontPeriod` + one `FrontAssignment` per Octocon `Front` row, with `comment` carried on the assignment.
+- Fronting is per-member intervals with a short comment, not grouped periods. An PluralPort converter should emit one `FrontPeriod` + one `FrontAssignment` per Octocon `Front` row, with `comment` carried on the assignment.
 - "Tags" play the role of both groups and tags: hierarchical, colored, named, with their own `security_level`. Mapping them onto `Group` (with `parent_group_id`) is closer to Octocon's actual usage than mapping onto a flat tag taxonomy. The PK export already calls them groups.
 - Custom-field definitions live on the user, not on a separate definitions table; values live inline on alters. The type space (`text | number | boolean`) is narrower than Sheaf's or Plural Star's, and values are always stringly typed at rest.
-- `security_level` on alters/tags pairs with friendship `level` to drive sharing visibility. Mapping the four-level enum into OpenPlural's privacy fragment can stay lossless via `extensions.octocon.security_level` and `extensions.octocon.friendship_level`.
-- Journals exist in the schema but are not in the official export. An OpenPlural importer that reads Octocon data directly (rather than via the `/export` slash command) could include them; one that reads the export file cannot.
+- `security_level` on alters/tags pairs with friendship `level` to drive sharing visibility. Mapping the four-level enum into PluralPort's privacy fragment can stay lossless via `extensions.octocon.security_level` and `extensions.octocon.friendship_level`.
+- Journals exist in the schema but are not in the official export. An PluralPort importer that reads Octocon data directly (rather than via the `/export` slash command) could include them; one that reads the export file cannot.
 - Polls, Discord proxy data, and friendship metadata should stay in optional modules or extensions.
-- The PK-format export drops switch history entirely. People migrating from Octocon to PluralKit through this path lose all front history — worth flagging in adoption docs if anyone writes an Octocon → OpenPlural converter that funnels through PK.
+- The PK-format export drops switch history entirely. People migrating from Octocon to PluralKit through this path lose all front history — worth flagging in adoption docs if anyone writes an Octocon → PluralPort converter that funnels through PK.

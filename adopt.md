@@ -1,12 +1,12 @@
 ---
-title: "OpenPlural — Adoption guide"
+title: "PluralPort — Adoption guide"
 nav_active: adopt
 ---
 
 <section>
   <h1>Adoption guide</h1>
   <p class="sub"><span class="draft">draft v0.1</span>If you're considering an exporter or importer for your app, this is the page that argues it's worth your time.</p>
-  <p>Two apps have committed: <b>Prism</b> and <b>Sheaf</b>. Below are full mapping tables for each app's existing export shape against OpenPlural v0.1, followed by shorter notes for Simply Plural, PluralKit, and Plural Star.</p>
+  <p>Three apps have committed: <b>Prism</b>, <b>Sheaf</b>, and <b>PluralSpace</b>. Below are full mapping tables for each app's existing export shape against PluralPort v0.1, followed by shorter notes for Simply Plural, PluralKit, and Plural Star.</p>
 </section>
 
 <section id="legend">
@@ -15,9 +15,9 @@ nav_active: adopt
     <p>The same four tags appear in the Status column of every Prism/Sheaf row below.</p>
   </div>
   <div class="panel">
-    <p style="margin: 0 0 8px;"><span class="tag tag-direct">direct</span> The source field maps 1:1 to an OpenPlural field with the same shape.</p>
+    <p style="margin: 0 0 8px;"><span class="tag tag-direct">direct</span> The source field maps 1:1 to an PluralPort field with the same shape.</p>
     <p style="margin: 0 0 8px;"><span class="tag tag-transform">transform</span> Lossless conversion (e.g. enum rename, string-to-array, decryption on export).</p>
-    <p style="margin: 0 0 8px;"><span class="tag tag-normalize">normalize</span> Source inlines data that OpenPlural splits into a sibling array (e.g. inline <code>member_ids</code> → <code>group_memberships[]</code>).</p>
+    <p style="margin: 0 0 8px;"><span class="tag tag-normalize">normalize</span> Source inlines data that PluralPort splits into a sibling array (e.g. inline <code>member_ids</code> → <code>group_memberships[]</code>).</p>
     <p style="margin: 0;"><span class="tag tag-extension">extensions.*</span> Source-specific data preserved under a namespaced key. Lossless but opaque to other apps.</p>
   </div>
 </section>
@@ -39,9 +39,9 @@ nav_active: adopt
       <p class="adopt-sub"><em>Mappings here are maintainer-provided pending a public sample export fixture.</em></p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Prism field</th><th>OpenPlural target</th><th>Status</th></tr></thead>
+          <thead><tr><th>Prism field</th><th>PluralPort target</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>formatVersion</td><td>(envelope) — replaces with <code>openplural_version</code></td><td><span class="tag tag-transform">transform</span></td></tr>
+            <tr><td>formatVersion</td><td>(envelope) — replaces with <code>pluralport_version</code></td><td><span class="tag tag-transform">transform</span></td></tr>
             <tr><td>appName</td><td>producer.app</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>version</td><td>producer.app_version</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>exportDate</td><td>exported_at</td><td><span class="tag tag-direct">direct</span></td></tr>
@@ -92,9 +92,9 @@ nav_active: adopt
       </p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Sheaf field</th><th>OpenPlural target</th><th>Status</th></tr></thead>
+          <thead><tr><th>Sheaf field</th><th>PluralPort target</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>version: "2"</td><td>(envelope) → openplural_version: "0.1"</td><td><span class="tag tag-transform">transform</span></td></tr>
+            <tr><td>version: "2"</td><td>(envelope) → pluralport_version: "0.1"</td><td><span class="tag tag-transform">transform</span></td></tr>
             <tr><td>system.id, name, description, tag</td><td>System.id, name, description, tag</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>system.avatar_url</td><td>Asset (uri-only) + System.avatar_asset_id</td><td><span class="tag tag-normalize">normalize</span></td></tr>
             <tr><td>system.color</td><td>System.color</td><td><span class="tag tag-direct">direct</span></td></tr>
@@ -133,8 +133,8 @@ nav_active: adopt
             <tr><td>polls[], poll.options[], poll.votes[], poll.events[]</td><td><code>extensions.sheaf.polls</code> until the polls module lands in v0.2</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>reminders[]</td><td><code>extensions.sheaf.reminders</code> until the reminders module lands in v0.2</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>sync <code>uploaded_files[]</code> inventory without bytes</td><td><code>extensions.sheaf.uploaded_files</code> unless paired with the async zip</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
-            <tr><td>revisions[] (journal/member-bio edit history)</td><td><code>extensions.sheaf.revisions</code> until OpenPlural grows a revision-history shape</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
-            <tr><td>watch_tokens[] + channels[]</td><td><code>extensions.sheaf.watch_tokens</code> until OpenPlural grows a notifications/export module</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>revisions[] (journal/member-bio edit history)</td><td><code>extensions.sheaf.revisions</code> until PluralPort grows a revision-history shape</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
+            <tr><td>watch_tokens[] + channels[]</td><td><code>extensions.sheaf.watch_tokens</code> until PluralPort grows a notifications/export module</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -149,7 +149,7 @@ nav_active: adopt
 <section id="other-paths">
   <div class="section-head">
     <h2>Adoption notes for other apps</h2>
-    <p>Shorter pointers — full mapping tables come once each app commits to OpenPlural support.</p>
+    <p>Shorter pointers — full mapping tables come once each app commits to PluralPort support.</p>
   </div>
   <div class="module-grid">
     <article class="module-card">
@@ -175,7 +175,7 @@ nav_active: adopt
   <div class="maintainer-grid">
     <div class="maintainer-card">
       <b>One exporter beats N converters</b>
-      <p>If you map your internal records to OpenPlural's core, you're done — every other app's importer handles the rest. Pairwise converters are how you end up maintaining nine of them.</p>
+      <p>If you map your internal records to PluralPort's core, you're done — every other app's importer handles the rest. Pairwise converters are how you end up maintaining nine of them.</p>
     </div>
     <div class="maintainer-card">
       <b>Partial imports are still wins</b>

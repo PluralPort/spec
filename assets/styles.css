@@ -1,4 +1,4 @@
-/* OpenPlural — shared stylesheet. Mono RFC, single column. */
+/* PluralPort — shared stylesheet. Mono RFC, single column. */
 
 :root {
   color-scheme: light;
@@ -182,7 +182,7 @@ table code { background: transparent; padding: 0; }
   white-space: normal;
 }
 
-/* Adopt mapping cards: source field | OpenPlural target | status
+/* Adopt mapping cards: source field | PluralPort target | status
    Status is a single tag; let the target column breathe. */
 .adopt-card table th:nth-child(3),
 .adopt-card table td:nth-child(3) {
