@@ -1,5 +1,5 @@
 ---
-title: "OpenPlural Spec — Modules & contract"
+title: "PluralPort Spec — Modules & contract"
 nav_active: spec
 ---
 
@@ -381,7 +381,7 @@ nav_active: spec
           <li>Keep raw unsupported module data when an archive area exists.</li>
           <li>Preserve <code>source_refs</code> on imported records when the target app has a place for them.</li>
           <li>Use conservative privacy defaults when the target app can't express the source privacy model.</li>
-          <li>Reject the file with an error if <code>openplural_version</code> is unknown — don't silently ignore unsupported versions.</li>
+          <li>Reject the file with an error if the version field is missing or unrecognized. v0.1 importers accept <code>pluralport_version</code> or the deprecated <code>openplural_version</code> alias (see <a href="spec.html#versioning">version field</a>); v0.2+ importers must require <code>pluralport_version</code>. Don't silently ignore unsupported versions.</li>
         </ul>
       </div>
 
@@ -394,7 +394,7 @@ nav_active: spec
             <tbody>
               <tr><td>started_at</td><td>ISO8601</td><td class="req-yes">yes</td><td></td></tr>
               <tr><td>finished_at</td><td>ISO8601</td><td class="req-yes">yes</td><td></td></tr>
-              <tr><td>source</td><td>{ openplural_version: string, producer_app: string, producer_app_version: string | null }</td><td class="req-yes">yes</td><td>Echoed from the imported envelope's <code>producer</code>.</td></tr>
+              <tr><td>source</td><td>{ pluralport_version: string, producer_app: string, producer_app_version: string | null }</td><td class="req-yes">yes</td><td>Echoed from the imported envelope's <code>producer</code>.</td></tr>
               <tr><td>counts</td><td>{ imported: number, skipped: number, degraded: number, preserved_only: number, failed: number }</td><td class="req-yes">yes</td><td>Aggregate across all modules.</td></tr>
               <tr><td>per_module</td><td>Record&lt;string, ModuleCounts&gt;</td><td class="req-no">no</td><td>Optional per-module breakdown using the same shape as <code>counts</code>.</td></tr>
               <tr><td>warnings</td><td>Warning[]</td><td class="req-no">no</td><td>See <a href="spec-records.html#warning">Warning</a>.</td></tr>
@@ -407,7 +407,7 @@ nav_active: spec
     "started_at": "2026-04-29T18:05:00Z",
     "finished_at": "2026-04-29T18:05:14Z",
     "source": {
-"openplural_version": "0.1",
+"pluralport_version": "0.1",
 "producer_app": "Sheaf",
 "producer_app_version": "1.4.2"
     },
@@ -442,10 +442,10 @@ nav_active: spec
         <p>What we're planning to build once v0.1 fields are settled.</p>
       </div>
       <ul class="proposal-list">
-        <li><b>JSON Schema</b> for <code>openplural_version: "0.1"</code> covering every record on this site.</li>
+        <li><b>JSON Schema</b> for <code>pluralport_version: "0.1"</code> covering every record on this site.</li>
         <li><b>Reference fixtures</b>: a hand-written export per researched app under <code>fixtures/&lt;app&gt;/</code>.</li>
         <li><b>Validator CLI</b>: validates a file against the schema and prints an <a href="#importresult">ImportResult</a>-shaped report.</li>
-        <li><b>Reference converters</b>: Prism, Sheaf, Simply Plural, PluralKit, Plural Star — each as a small standalone script that reads a real export and emits an OpenPlural file.</li>
+        <li><b>Reference converters</b>: Prism, Sheaf, Simply Plural, PluralKit, Plural Star — each as a small standalone script that reads a real export and emits a PluralPort file.</li>
         <li><b>Conformance test</b>: round-trip exporters → importers → exporters and diff the result. Lossy fields must be flagged in <code>warnings</code>.</li>
       </ul>
     </section>

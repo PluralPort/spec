@@ -1,18 +1,18 @@
 ---
-title: "OpenPlural — Apps & feature matrix"
+title: "PluralPort — Apps & feature matrix"
 nav_active: apps
 ---
 
 <section>
   <h1>Apps &amp; feature matrix</h1>
-  <p class="sub">The data shapes of nine plurality apps, side by side. A translation reference, not a ranking. Each row is what an app actually stores; OpenPlural's job is to be a shape all of them can round-trip through.</p>
+  <p class="sub">The data shapes of nine plurality apps, side by side. A translation reference, not a ranking. Each row is what an app actually stores; PluralPort's job is to be a shape all of them can round-trip through.</p>
   <p>Prism and Sheaf have said they'd adopt this. The <a href="adopt.html">adoption guide</a> has their full mapping tables.</p>
 </section>
 
 <section id="matrix">
   <div class="section-head">
     <h2>Feature matrix</h2>
-    <p>What each app stores, in OpenPlural's module vocabulary. Empty cells are real gaps, not unknowns.</p>
+    <p>What each app stores, in PluralPort's module vocabulary. Empty cells are real gaps, not unknowns.</p>
   </div>
   <div class="table-wrap">
     <table>
@@ -171,7 +171,7 @@ nav_active: apps
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Prism shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>Prism shape</th><th>PluralPort target</th></tr></thead>
         <tbody>
           <tr><td><code>headmates[]</code></td><td><a href="spec-records.html#member">Member</a></td></tr>
           <tr><td><code>frontSessions[]</code> per-member intervals + <code>sleepSessions[]</code></td><td><a href="spec-fronting.html#frontperiod">FrontPeriod</a> with single-member assignments; sleep via <code>status: "sleep"</code></td></tr>
@@ -198,7 +198,7 @@ nav_active: apps
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Sheaf shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>Sheaf shape</th><th>PluralPort target</th></tr></thead>
         <tbody>
           <tr><td><code>system</code> object (<code>name</code>, <code>tag</code>, <code>privacy</code>, etc.)</td><td><a href="spec-records.html#system">System</a></td></tr>
           <tr><td><code>members[]</code> (decrypted on export)</td><td><a href="spec-records.html#member">Member</a></td></tr>
@@ -235,7 +235,7 @@ nav_active: apps
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>PluralSpace shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>PluralSpace shape</th><th>PluralPort target</th></tr></thead>
         <tbody>
           <tr><td><code>fronts[]</code>: one row per member, co-fronts share <code>started_at</code>/<code>ended_at</code></td><td><a href="spec-fronting.html#frontperiod">FrontPeriod</a> built by grouping rows on identical timestamps; one <a href="spec-fronting.html#frontassignment">FrontAssignment</a> per row</td></tr>
           <tr><td><code>members[].role</code> as free-text string array</td><td><a href="spec-records.html#taxonomyterm">TaxonomyTerm</a> (<code>kind: "role"</code>) + <a href="spec-records.html#taxonomyassignment">TaxonomyAssignment</a> per entry</td></tr>
@@ -288,7 +288,7 @@ nav_active: apps
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Lighthouse shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>Lighthouse shape</th><th>PluralPort target</th></tr></thead>
         <tbody>
           <tr><td>Subsystems as separate systems</td><td>Multiple <a href="spec-records.html#system">System</a> records with <code>parent_system_id</code></td></tr>
           <tr><td>Fixed alter fields (source/type/relationship)</td><td><a href="spec-records.html#customfielddefinition">CustomFieldDefinition</a> with <code>kind: "select"</code> or taxonomy</td></tr>
@@ -327,7 +327,7 @@ nav_active: apps
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Octocon shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>Octocon shape</th><th>PluralPort target</th></tr></thead>
         <tbody>
           <tr><td><code>Alters.Alter</code> with <code>untracked</code>/<code>archived</code>/<code>pinned</code></td><td><a href="spec-records.html#member">Member</a>; <code>untracked</code> mirrors SP custom-front via <code>extensions.octocon.untracked</code></td></tr>
           <tr><td><code>Fronts.Front</code> rows (per-alter, with optional <code>comment</code>)</td><td><a href="spec-fronting.html#frontperiod">FrontPeriod</a> + one <a href="spec-fronting.html#frontassignment">FrontAssignment</a> per row; carry <code>comment</code> on the assignment</td></tr>
@@ -369,7 +369,7 @@ nav_active: apps
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>PluralKit shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>PluralKit shape</th><th>PluralPort target</th></tr></thead>
         <tbody>
           <tr><td><code>switches[]</code> with <code>members</code> array</td><td><a href="spec-fronting.html#frontevent">FrontEvent[]</a> with assignments using <code>front_role: "member"</code></td></tr>
           <tr><td><code>members[]</code> with <code>proxy_tags</code></td><td><a href="spec-records.html#member">Member</a> with <a href="spec-records.html#proxytag">ProxyTag</a> array</td></tr>
@@ -394,7 +394,7 @@ nav_active: apps
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Plural Star shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>Plural Star shape</th><th>PluralPort target</th></tr></thead>
         <tbody>
           <tr><td>Tiered front periods</td><td><a href="spec-fronting.html#frontperiod">FrontPeriod</a> with explicit <code>front_role</code> per tier; <code>source_kind: "tiered"</code></td></tr>
           <tr><td><code>chatChannels</code> + <code>ps:chat:&lt;id&gt;</code> messages</td><td><a href="spec-modules.html#conversation">Conversation</a> + <a href="spec-modules.html#chatmessage">ChatMessage</a></td></tr>
@@ -417,7 +417,7 @@ nav_active: apps
     </p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Simply Plural shape</th><th>OpenPlural target</th></tr></thead>
+        <thead><tr><th>Simply Plural shape</th><th>PluralPort target</th></tr></thead>
         <tbody>
           <tr><td>Per-member/status intervals</td><td><a href="spec-fronting.html#frontperiod">FrontPeriod</a></td></tr>
           <tr><td>Hierarchical groups</td><td><a href="spec-records.html#group">Group</a> with <code>parent_group_id</code></td></tr>

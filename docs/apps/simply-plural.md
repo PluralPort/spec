@@ -150,7 +150,7 @@ Other collections include:
 
 ## Import/Interoperability Notes
 
-Simply Plural is one of the broadest data models and a likely stress test for OpenPlural. It argues for:
+Simply Plural is one of the broadest data models and a likely stress test for PluralPort. It argues for:
 
 - Raw source ID preservation.
 - Both interval-based fronting and custom front/status support.
