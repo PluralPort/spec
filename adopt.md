@@ -70,6 +70,7 @@ nav_active: adopt
             <tr><td>memberGroupEntries[]</td><td>GroupMembership</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>customFields[]</td><td>CustomFieldDefinition</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>customFieldValues[]</td><td>CustomFieldValue</td><td><span class="tag tag-direct">direct</span></td></tr>
+            <tr><td>customFields[] of type slider/scale (native <code>typeConfigJson</code>)</td><td>CustomFieldDefinition (field_type: "range", v0.2) — today written as field_type: "json" with no options; the real config travels only in <code>extensions.prism.native.typeConfigJson</code>, which a generic importer has no reason to inspect</td><td><span class="tag tag-extension">extensions.*</span></td></tr>
             <tr><td>notes[]</td><td>Note</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>conversations[]</td><td>chat.conversations[]</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>messages[]</td><td>chat.messages[]</td><td><span class="tag tag-direct">direct</span></td></tr>
@@ -126,6 +127,7 @@ nav_active: adopt
             <tr><td>tags[].member_ids</td><td>TaxonomyAssignment[] (subject_type: "member")</td><td><span class="tag tag-normalize">normalize</span></td></tr>
             <tr><td>custom_fields[].id, name, field_type, options, order, privacy</td><td>CustomFieldDefinition (options accepts <code>string[] | Record&lt;string, unknown&gt; | null</code> since Sheaf stores it as JSONB <code>dict | None</code>)</td><td><span class="tag tag-transform">transform</span></td></tr>
             <tr><td>custom_fields[].values[] (member_id, value)</td><td>CustomFieldValue (subject_type: "member")</td><td><span class="tag tag-normalize">normalize</span></td></tr>
+            <tr><td>custom_fields[].field_type: "slider" + its options object</td><td>CustomFieldDefinition (field_type: "range", v0.2) — today written verbatim as field_type: "slider" (not in the recommended list); the options object already matches the proposed range schema key for key</td><td><span class="tag tag-transform">transform</span></td></tr>
             <tr><td>journals[].id, member_id, title, body, visibility, author_member_ids, created_at, updated_at</td><td>Note</td><td><span class="tag tag-direct">direct</span></td></tr>
             <tr><td>journals[].image_keys + async zip <code>images/&lt;key&gt;</code></td><td>Asset + Note.attachment_asset_ids</td><td><span class="tag tag-normalize">normalize</span></td></tr>
             <tr><td>messages[] (board posts: system board + per-member walls)</td><td>boards.posts[] (with caveats; see separate issue on <code>parent_post_id</code>)</td><td><span class="tag tag-transform">transform</span></td></tr>
