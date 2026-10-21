@@ -1,10 +1,10 @@
-# Pluralport Specification
+# PluralPort Specification
 
 **Website**: <https://pluralport.com/>
 
 **Canonical repository**: <https://github.com/pluralport/spec>
 
-Pluralport (formerly OpenPlural) is a research and specification workspace for
+PluralPort (formerly OpenPlural) is a research and specification workspace for
 a portable plurality-system data format.
 
 The initial goal is to compare existing app data shapes and identify a smallest useful common model that app developers can export/import once instead of writing pairwise converters for every other app.
@@ -28,7 +28,7 @@ from the `.md` files in this repository via GitHub Pages):
 Source markdown for the same content (rendered on GitHub):
 
 - [Feature matrix](docs/feature-matrix.md)
-- [OpenPlural v0.1 proposal](docs/openplural-proposal.md)
+- [PluralPort v0.1 proposal](docs/pluralport-proposal.md)
 - Per-page sources at the repo root: `index.md`, `apps.md`, `spec.md`, `spec-records.md`, `spec-fronting.md`, `spec-modules.md`, `adopt.md`
 
 ## App Research
@@ -52,7 +52,7 @@ This repo intentionally starts with documentation only. A JSON Schema, fixture s
 
 ## Contributing
 
-Issues and PRs are welcome — especially research corrections from app maintainers, missing fields, schema inconsistencies, and shape proposals for future modules. `docs/openplural-proposal.md` is the working document for v0.1.
+Issues and PRs are welcome — especially research corrections from app maintainers, missing fields, schema inconsistencies, and shape proposals for future modules. `docs/pluralport-proposal.md` is the working document for v0.1.
 
 ## License
 

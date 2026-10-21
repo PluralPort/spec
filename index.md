@@ -1,10 +1,10 @@
 ---
-title: OpenPlural — a draft proposal for a shared plurality data shape
+title: PluralPort — a draft proposal for a shared plurality data shape
 nav_active: home
 footer: home
 ---
 
-# OpenPlural
+# PluralPort
 {: id="top" }
 
 <p class="sub"><span class="draft">draft v0.1</span>A shared file shape for plurality apps. Nothing's fixed yet.</p>
@@ -15,7 +15,7 @@ If you maintain a plurality app — or you use one and care about getting your d
 
 There are a lot of plurality apps. Each one stores roughly the same things — systems, members, fronting history, custom fields — but in pairwise-incompatible shapes. Moving from one app to another means writing a converter, or losing data, or both.
 
-OpenPlural is a proposed file shape that any app can export to and import from. Not a new app and not a service — apps keep their internal models; they just agree on what an export looks like. The goal is to turn the export/import problem from "implement N pairwise converters" into "implement OpenPlural once."
+PluralPort is a proposed file shape that any app can export to and import from. Not a new app and not a service — apps keep their internal models; they just agree on what an export looks like. The goal is to turn the export/import problem from "implement N pairwise converters" into "implement PluralPort once."
 
 ## where it stands
 

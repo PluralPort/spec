@@ -318,7 +318,7 @@ So the upstream changelog's "re-importable" claim is ahead of the checked-in par
 
 ## Import/Interoperability Notes
 
-Sheaf now covers more of the OpenPlural core directly than the original v1 research captured:
+Sheaf now covers more of the PluralPort core directly than the original v1 research captured:
 
 - System.
 - Members (including a dedicated `is_custom_front` boolean, so Simply Plural custom fronts and PluralKit member identity both round-trip without extension fallback).
@@ -330,11 +330,11 @@ Sheaf now covers more of the OpenPlural core directly than the original v1 resea
 
 The remaining gaps are not all the same kind:
 
-- `revisions[]` has no first-class OpenPlural record today; preserve it under `extensions` if needed.
+- `revisions[]` has no first-class PluralPort record today; preserve it under `extensions` if needed.
 - `messages[]` map to the boards module, but the single-level reply pointer (`parent_message_id`) has no v0.1 home and lands in `extensions.sheaf` unless `BoardPost` grows a reply field.
 - `polls[]` and `reminders[]` are full Sheaf surfaces but neither has a v0.1 module; both fit under `extensions.sheaf` as preserved-only until the relevant modules land.
 - `watch_tokens[]` likewise fits best in `extensions` until there is a notification/export module.
-- `uploaded_files[]` in sync JSON is inventory-only metadata, not enough by itself to emit self-contained OpenPlural `assets[]`.
+- `uploaded_files[]` in sync JSON is inventory-only metadata, not enough by itself to emit self-contained PluralPort `assets[]`.
 - The async zip is the better converter target when image portability matters, because it actually includes the `images/<key>` blobs referenced by journal `image_keys`.
 
-It also shows a useful implementation boundary: exporter coverage has moved ahead of importer coverage. OpenPlural conformance should test actual exported and imported modules separately, not assume round-trip parity inside the source app.
+It also shows a useful implementation boundary: exporter coverage has moved ahead of importer coverage. PluralPort conformance should test actual exported and imported modules separately, not assume round-trip parity inside the source app.

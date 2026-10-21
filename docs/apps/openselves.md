@@ -87,4 +87,4 @@ OpenSelves is useful as a minimal target:
 - Member profile fields are required and simple.
 - Fronting is one member per interval.
 - There are no groups, custom fields, journals, polls, chat, or system profile in the inspected schema.
-- OpenPlural should allow importing a rich file into a simpler app with a clear `losses` report, not require every module to be implemented.
+- PluralPort should allow importing a rich file into a simpler app with a clear `losses` report, not require every module to be implemented.

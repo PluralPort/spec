@@ -82,7 +82,7 @@ groups, which carry a list of member IDs.
 
 ## Import/Interoperability Notes
 
-OpenPlural mapping is straightforward:
+PluralPort mapping is straightforward:
 
 - `tuppers[].id` → `SourceRef(app: "tupperbox", collection: "tuppers")`,
   stringified.
@@ -112,12 +112,12 @@ OpenPlural mapping is straightforward:
 - `groups[].avatar`, `groups[].tag` → `extensions.tupperbox.*`.
 
 The PluralKit-style `proxy_tags` mapping is the most useful piece. Any
-OpenPlural importer that already supports PluralKit proxy tags will
+PluralPort importer that already supports PluralKit proxy tags will
 correctly render Tupperbox-origin members' proxies with no extra work.
 
 ## What Tupperbox Doesn't Have
 
-For an exporter or importer that's targeting the full OpenPlural shape:
+For an exporter or importer that's targeting the full PluralPort shape:
 
 - **No fronting.** Tupperbox doesn't model who's fronting; it's a proxy
   bot. Front history must come from elsewhere (PluralKit, Sheaf, etc.).

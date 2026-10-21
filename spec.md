@@ -1,5 +1,5 @@
 ---
-title: "OpenPlural Draft API Spec"
+title: "PluralPort Draft API Spec"
 nav_active: spec
 ---
 
@@ -75,7 +75,7 @@ nav_active: spec
       </div>
     </div>
     <pre><code>{
-  "openplural_version": "0.1",
+  "pluralport_version": "0.1",
   "exported_at": "2026-04-29T18:00:00Z",
   "producer": {
     "app": "Sheaf",
@@ -109,6 +109,17 @@ nav_active: spec
   </div>
 </section>
 
+<section id="versioning">
+  <div class="section-head">
+    <h2>Version field</h2>
+    <p>The project was known as OpenPlural before a name conflict forced a rename to PluralPort. The version field followed.</p>
+  </div>
+  <div class="panel">
+    <p style="margin: 0 0 8px;">Producers should emit <code>pluralport_version</code>. For v0.1 only, importers must also accept the deprecated <code>openplural_version</code> key as an alias with identical semantics, since some production implementations shipped against the old name before the rename. If a file has both keys, <code>pluralport_version</code> wins.</p>
+    <p style="margin: 0;"><code>openplural_version</code> is removed as of v0.2: a v0.2+ importer must require <code>pluralport_version</code> and reject a file that lacks it, even if <code>openplural_version</code> is present.</p>
+  </div>
+</section>
+
 <section id="shared-records">
   <div class="section-head">
     <h2>Shared record fragments</h2>
@@ -139,9 +150,9 @@ nav_active: spec
       <code>ampersand</code>, <code>pluralspace</code>.
     </p>
     <p style="margin: 0;">
-      New IDs are registered by PR to the OpenPlural repo — maintainers keep the canonical list. Apps
+      New IDs are registered by PR to the PluralPort repo — maintainers keep the canonical list. Apps
       that want a private namespace without registration can use reverse-DNS keys (e.g.
-      <code>com.example.app</code>) inside <code>extensions</code> instead. The <code>openplural</code>
+      <code>com.example.app</code>) inside <code>extensions</code> instead. The <code>pluralport</code>
       namespace is reserved for spec-level extensions.
     </p>
   </div>

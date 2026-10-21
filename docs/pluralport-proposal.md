@@ -1,14 +1,14 @@
 ---
-title: "OpenPlural v0.1 Proposal"
+title: "PluralPort v0.1 Proposal"
 nav_active: proposal
 permalink: /proposal.html
 ---
 
-# OpenPlural v0.1 Proposal
+# PluralPort v0.1 Proposal
 
 ## Goals
 
-OpenPlural is a JSON file shape for moving plurality data between apps without losing what matters:
+PluralPort is a JSON file shape for moving plurality data between apps without losing what matters:
 
 - App developers implement one exporter and one importer.
 - Users keep meaningful data when moving between apps.
@@ -32,7 +32,7 @@ This proposal is a starting point, not a finished spec.
 
 ```json
 {
-  "openplural_version": "0.1",
+  "pluralport_version": "0.1",
   "exported_at": "2026-04-29T18:00:00Z",
   "producer": {
     "app": "Example App",
@@ -68,6 +68,8 @@ This proposal is a starting point, not a finished spec.
   "warnings": []
 }
 ```
+
+The project was known as OpenPlural before a name conflict forced a rename to PluralPort. Producers should emit `pluralport_version`. For v0.1 only, importers must also accept the deprecated `openplural_version` key as an alias with identical semantics, since some production implementations shipped against the old name before the rename; `pluralport_version` wins if both are present. `openplural_version` is removed as of v0.2 — a v0.2+ importer must require `pluralport_version`.
 
 ## IDs And Source References
 
@@ -120,7 +122,7 @@ Source refs are essential for round-tripping and sync-aware imports.
 }
 ```
 
-OpenPlural should allow multiple systems in one file because Lighthouse and Ampersand can represent nested systems/subsystems and some users maintain more than one system-like grouping.
+PluralPort should allow multiple systems in one file because Lighthouse and Ampersand can represent nested systems/subsystems and some users maintain more than one system-like grouping.
 
 ## Members
 
@@ -296,7 +298,7 @@ Fronting is the hardest cross-app mismatch:
 - Sheaf stores grouped intervals with many members.
 - Plural Star stores tiered periods with primary/co-front/co-conscious roles.
 
-OpenPlural should support both canonical periods and optional source events.
+PluralPort should support both canonical periods and optional source events.
 
 ### Front Periods
 
@@ -397,7 +399,7 @@ This maps well to Prism's newer comments and can still reference Simply Plural f
 }
 ```
 
-This can represent Prism notes, Simply Plural notes, Plural Star journals, Lighthouse journal posts, Sheaf journal entries, and Ampersand journal posts. Apps with separate "member notes" versus "journal entries" can set `extensions.openplural.note_kind`.
+This can represent Prism notes, Simply Plural notes, Plural Star journals, Lighthouse journal posts, Sheaf journal entries, and Ampersand journal posts. Apps with separate "member notes" versus "journal entries" can set `extensions.pluralport.note_kind`.
 
 One thing still worth pressure-testing with adopters: `member_id` currently means "the primary subject member this entry belongs to", while `author_member_ids` means who wrote it. That maps cleanly to Sheaf's current per-member journals, but communal or multi-member journal systems may eventually justify an additive `subject_member_ids` field. That seems like a cleaner evolution than splitting journals into a separate top-level core record.
 
@@ -446,7 +448,7 @@ The following modules should be specified after core v0.1:
 
 ## Scope And Consent
 
-An OpenPlural file can carry highly sensitive data — Simply Plural exports include every Mongo collection except accounts; Lighthouse exports BDA plans, inner worlds, rules, journals, and more. Producers should be explicit about what's included and consider per-module scoping or redaction so users can opt out of categories they don't want shared. A future spec version may formalize consent metadata; for now, treat the file as a whole-database dump unless the producer documents otherwise.
+An PluralPort file can carry highly sensitive data — Simply Plural exports include every Mongo collection except accounts; Lighthouse exports BDA plans, inner worlds, rules, journals, and more. Producers should be explicit about what's included and consider per-module scoping or redaction so users can opt out of categories they don't want shared. A future spec version may formalize consent metadata; for now, treat the file as a whole-database dump unless the producer documents otherwise.
 
 ## Loss Reporting
 
@@ -485,7 +487,7 @@ Every record can include:
 }
 ```
 
-Extension keys should be reverse-DNS or registered short app IDs. OpenPlural should define common app IDs:
+Extension keys should be reverse-DNS or registered short app IDs. PluralPort should define common app IDs:
 
 - `prism`
 - `simply_plural`
@@ -501,7 +503,7 @@ Extension keys should be reverse-DNS or registered short app IDs. OpenPlural sho
 
 Near-term implementation should include:
 
-- JSON Schema for `openplural_version: "0.1"`.
+- JSON Schema for `pluralport_version: "0.1"`.
 - Fixture files for each researched source app.
 - A validator CLI.
 - A loss-report schema.

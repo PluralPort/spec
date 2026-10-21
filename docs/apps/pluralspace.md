@@ -8,11 +8,11 @@ Sources:
 - Two sample GDPR exports inspected, generated 2026-05-03 (mock data). The second was produced after creating groups in the app to capture group records.
 - Maintainer implementation notes shared 2026-05-06 (stack/runtime and fronting-storage overview). These are useful architectural context, but they are not a published schema or source audit.
 
-PluralSpace is a separate app from Plural Star, despite a shared naming history: the React Native app formerly called "Plural Space" rebranded to "Plural Star", while the unrelated web app at `pluralspace.app` kept the "PluralSpace" (no space) name. They are different products with different data models and should be treated as distinct apps for OpenPlural purposes. See [`plural-star.md`](plural-star.md) for the Plural Star format.
+PluralSpace is a separate app from Plural Star, despite a shared naming history: the React Native app formerly called "Plural Space" rebranded to "Plural Star", while the unrelated web app at `pluralspace.app` kept the "PluralSpace" (no space) name. They are different products with different data models and should be treated as distinct apps for PluralPort purposes. See [`plural-star.md`](plural-star.md) for the Plural Star format.
 
 The current export is framed as a regulatory data-portability dump: the manifest cites GDPR Article 15 (Right of Access) and Article 20 (Right to Data Portability). This isn't the same affordance as a round-trippable backup. The ZIP and `data.json` shape documented below is reconstructed from inspected sample exports — there's no published schema for it.
 
-The public [developers page](https://pluralspace.app/developers) lists a REST API as "Coming Soon" and "actively in development" and shows a preview, but the API isn't a usable surface yet. If and when it ships it'd likely be a better target for an OpenPlural converter than the GDPR export, but that's speculative until it's public. The research below should be read as a snapshot of the GDPR export specifically.
+The public [developers page](https://pluralspace.app/developers) lists a REST API as "Coming Soon" and "actively in development" and shows a preview, but the API isn't a usable surface yet. If and when it ships it'd likely be a better target for an PluralPort converter than the GDPR export, but that's speculative until it's public. The research below should be read as a snapshot of the GDPR export specifically.
 
 ## Runtime And Deployment Context
 
@@ -233,7 +233,7 @@ Maintainer-provided storage notes line up with that export shape:
 - Group fields: `id`, `name`, `color`, `description`, `members[]`, `created_at`.
 - `members[]` carries `{id, name}` snapshots — proper member IDs, unlike the inverse pointer.
 - **No nesting field in the export** — no `parent_id`, `parent_group_id`, or similar — even though PluralSpace supports nested groups in the app UI. The Groups panel renders children indented under their parent and shows a "N subgroup(s)" badge, so the relationship is tracked server-side; it just doesn't appear in `data.json`.
-- In the inspected export, "younger" had a "1 subgroup" badge in-app with "subgroup" as its child, but both serialized as flat siblings with no parent reference. An OpenPlural converter can't recover the tree from this file alone.
+- In the inspected export, "younger" had a "1 subgroup" badge in-app with "subgroup" as its child, but both serialized as flat siblings with no parent reference. An PluralPort converter can't recover the tree from this file alone.
 - Per-member `groups: ["younger"]` is the inverse pointer **using group names as strings**. Combined with the snapshot member list above, group membership is denormalized in two places, with one side using names and the other using IDs.
 
 ### Custom Fields
@@ -260,11 +260,11 @@ Both collections were empty arrays in both inspected exports.
 - `thoughts` isn't documented elsewhere; schema unknown. The name suggests a microblog-style feature.
 - `media_files` is presumably the registry that `avatar_path`/`avatar_media_path` references resolve against, plus journal/chat attachments. The empty `media/` ZIP directory and empty `media_files[]` array are consistent in the inspected exports.
 
-## Mapping To OpenPlural V0.1
+## Mapping To PluralPort V0.1
 
 ### Clean mappings
 
-| PluralSpace | OpenPlural |
+| PluralSpace | PluralPort |
 | --- | --- |
 | `system` | `systems[0]` (one system per export observed) |
 | `members[]` | `members[]` |
@@ -282,27 +282,27 @@ Both collections were empty arrays in both inspected exports.
 
 2. **No front roles or tiers.** All assignments come back as `front_role: "member"`. The `type`/`type_name` field hints at a future taxonomy that should map to `extensions.pluralspace.front_type` until enumerated.
 
-3. **`role` as array of free-text strings.** OpenPlural recommends taxonomy terms with `kind: "role"` rather than a privileged member field. Each entry in `role[]` becomes a `taxonomy_terms` record (deduped per system) plus a `taxonomy_assignments` row pointing at the member. Free-text means terms must be created lazily from the values seen.
+3. **`role` as array of free-text strings.** PluralPort recommends taxonomy terms with `kind: "role"` rather than a privileged member field. Each entry in `role[]` becomes a `taxonomy_terms` record (deduped per system) plus a `taxonomy_assignments` row pointing at the member. Free-text means terms must be created lazily from the values seen.
 
-4. **Group hierarchy is lost in the GDPR export.** PluralSpace supports nested groups in the app, but the GDPR export emits a flat `member_groups[]` with no `parent_id` field. An OpenPlural converter built against the GDPR export can't reconstruct the tree. The forthcoming API/export is the right path here, not a converter workaround — flagged with maintainers 2026-05-03.
+4. **Group hierarchy is lost in the GDPR export.** PluralSpace supports nested groups in the app, but the GDPR export emits a flat `member_groups[]` with no `parent_id` field. An PluralPort converter built against the GDPR export can't reconstruct the tree. The forthcoming API/export is the right path here, not a converter workaround — flagged with maintainers 2026-05-03.
 
-5. **Group membership uses names, not IDs.** `members[].groups[]` stores group **names**. Group records carry their own `members[]` with member IDs. An OpenPlural converter should prefer the group → member side (which uses IDs) for `group_memberships[]`, and treat the member-side names as a denormalized cross-check. If the two disagree (e.g. mid-rename), the ID-side wins.
+5. **Group membership uses names, not IDs.** `members[].groups[]` stores group **names**. Group records carry their own `members[]` with member IDs. An PluralPort converter should prefer the group → member side (which uses IDs) for `group_memberships[]`, and treat the member-side names as a denormalized cross-check. If the two disagree (e.g. mid-rename), the ID-side wins.
 
 6. **Custom fronts not observed in either export.** `is_custom_front` is a member flag, but no member with `is_custom_front: true` appeared in either inspected export despite the user attempting to include some. Either the export filters them out, the flag is set elsewhere, or custom fronts live in a different surface entirely. The shape of an exported custom front is **unverified**.
 
-7. **`visibility_level` numeric scale.** Without documentation of the band semantics, importers can't safely map it to OpenPlural's `visibility` enum. The numeric value should ride along in `extensions.pluralspace.visibility_level` and the `visibility` field should be set conservatively (e.g. `"private"`) until the scale is known.
+7. **`visibility_level` numeric scale.** Without documentation of the band semantics, importers can't safely map it to PluralPort's `visibility` enum. The numeric value should ride along in `extensions.pluralspace.visibility_level` and the `visibility` field should be set conservatively (e.g. `"private"`) until the scale is known.
 
-8. **Chat messages reference `member_name` only.** OpenPlural's chat module (post-v0.1) will want a member ID. An importer can resolve names to IDs at import time, but renamed members or duplicates will collide. The original name should be preserved in `extensions.pluralspace.author_name`.
+8. **Chat messages reference `member_name` only.** PluralPort's chat module (post-v0.1) will want a member ID. An importer can resolve names to IDs at import time, but renamed members or duplicates will collide. The original name should be preserved in `extensions.pluralspace.author_name`.
 
 9. **`created_by_member` and journal `members` are snapshots, not foreign keys.** Resolution by name is fragile. Preserve both `id` and `name` from the snapshot via `source_refs` so future syncs can reconcile.
 
-10. **System-level polls.** OpenPlural's polls module should accommodate both system-scoped and member-scoped polls (Plural Star has the latter). PluralSpace polls have no target member.
+10. **System-level polls.** PluralPort's polls module should accommodate both system-scoped and member-scoped polls (Plural Star has the latter). PluralSpace polls have no target member.
 
-11. **GDPR framing ≠ round-trip backup.** The manifest names regulation articles, not a re-import contract. Producer info exists (`format_version: "1.0"`) but there's no statement of what the export omits — and we now have at least one confirmed omission (group hierarchy). An OpenPlural converter should emit `warnings[]` for `hierarchy_dropped`, plus any category it can't inspect (e.g. `thoughts`, empty `media_files` despite `avatar_path` references).
+11. **GDPR framing ≠ round-trip backup.** The manifest names regulation articles, not a re-import contract. Producer info exists (`format_version: "1.0"`) but there's no statement of what the export omits — and we now have at least one confirmed omission (group hierarchy). An PluralPort converter should emit `warnings[]` for `hierarchy_dropped`, plus any category it can't inspect (e.g. `thoughts`, empty `media_files` despite `avatar_path` references).
 
-12. **No banners, no birthdays, no per-member privacy.** Standard OpenPlural fields are absent. No data loss on export *from* PluralSpace; on import *into* PluralSpace these fields would need to drop with a warning.
+12. **No banners, no birthdays, no per-member privacy.** Standard PluralPort fields are absent. No data loss on export *from* PluralSpace; on import *into* PluralSpace these fields would need to drop with a warning.
 
-13. **`thoughts` is undocumented.** Until sampled, an OpenPlural converter has to either skip it with a warning or pass it through opaquely as `extensions.pluralspace.thoughts`.
+13. **`thoughts` is undocumented.** Until sampled, an PluralPort converter has to either skip it with a warning or pass it through opaquely as `extensions.pluralspace.thoughts`.
 
 ### Recommendation
 
@@ -312,4 +312,4 @@ PluralSpace is well-served by the proposed v0.1 core plus the planned chat and p
 - **Identity-by-name** in chat messages, member→group pointers, `created_by_member`, and journal `members[]` is fragile. `source_refs` plus extension-preserved names mitigate it for converters built against the GDPR export; the API surface is likely to be more consistent.
 - **Unverified shapes** for custom fronts, populated custom field values, and `thoughts` — these need either a fully-populated GDPR sample or the API documentation to pin down.
 
-PluralSpace also reinforces an OpenPlural design choice independent of which surface a converter targets: documenting `format_version` and producer at the envelope level is necessary but not sufficient. A `capabilities.modules` declaration and a `warnings[]` block at export time would make the difference between a GDPR dump and a portability-grade export explicit to importers.
+PluralSpace also reinforces an PluralPort design choice independent of which surface a converter targets: documenting `format_version` and producer at the envelope level is necessary but not sufficient. A `capabilities.modules` declaration and a `warnings[]` block at export time would make the difference between a GDPR dump and a portability-grade export explicit to importers.

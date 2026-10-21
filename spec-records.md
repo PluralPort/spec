@@ -1,5 +1,5 @@
 ---
-title: "OpenPlural Spec — Records"
+title: "PluralPort Spec — Records"
 nav_active: spec
 ---
 
@@ -66,7 +66,7 @@ nav_active: spec
             <tbody>
               <tr><td>app</td><td>string</td><td class="req-yes">yes</td><td>Display name of the producing app, e.g. <code>"Prism"</code>, <code>"Sheaf"</code>.</td></tr>
               <tr><td>app_version</td><td>string</td><td class="req-no">no</td><td>Producing app's release version.</td></tr>
-              <tr><td>exporter_version</td><td>string</td><td class="req-no">no</td><td>Version of the OpenPlural exporter implementation, if separate from the app.</td></tr>
+              <tr><td>exporter_version</td><td>string</td><td class="req-no">no</td><td>Version of the PluralPort exporter implementation, if separate from the app.</td></tr>
               <tr><td>app_id</td><td>string</td><td class="req-no">no</td><td>Short canonical app ID — see registered IDs in <a href="spec.html#extension-ids">spec hub</a>.</td></tr>
             </tbody>
           </table>
@@ -81,7 +81,7 @@ nav_active: spec
 
       <article class="record" id="capabilities">
         <h3>Capabilities</h3>
-        <p class="record-blurb">Declares which OpenPlural modules this file populates. Lets importers know what to expect without scanning every array.</p>
+        <p class="record-blurb">Declares which PluralPort modules this file populates. Lets importers know what to expect without scanning every array.</p>
         <div class="table-wrap">
           <table class="field-table">
             <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
@@ -135,7 +135,7 @@ nav_active: spec
             <tbody>
               <tr><td>level</td><td>"info" | "warning" | "error"</td><td class="req-yes">yes</td><td>Severity. <code>"error"</code> means data was lost; <code>"warning"</code> means data was degraded or partially preserved.</td></tr>
               <tr><td>code</td><td>string</td><td class="req-yes">yes</td><td>Machine-readable code, e.g. <code>"module_not_supported"</code>, <code>"field_truncated"</code>, <code>"asset_uri_only"</code>.</td></tr>
-              <tr><td>record_type</td><td>string | null</td><td class="req-no">no</td><td>The OpenPlural record type or path the warning relates to.</td></tr>
+              <tr><td>record_type</td><td>string | null</td><td class="req-no">no</td><td>The PluralPort record type or path the warning relates to.</td></tr>
               <tr><td>record_id</td><td>UUID | null</td><td class="req-no">no</td><td>Specific record's <code>id</code> if applicable.</td></tr>
               <tr><td>message</td><td>string</td><td class="req-yes">yes</td><td>Human-readable explanation.</td></tr>
               <tr><td>count</td><td>number | null</td><td class="req-no">no</td><td>If the warning aggregates multiple records.</td></tr>
@@ -208,7 +208,7 @@ nav_active: spec
               <tr><td>name</td><td>string | null</td><td class="req-no">no</td><td>Sheaf: <code>members[].name</code> (decrypted in export). Optional because some apps (Octocon) allow nameless alters and synthesize a display label. Importers without name handling should derive a display string from <code>display_name</code>, <code>pronouns</code>, or a fallback.</td></tr>
               <tr><td>display_name</td><td>string | null</td><td class="req-no">no</td><td>Sheaf: <code>members[].display_name</code>. Prism: <code>headmates[].displayName</code>.</td></tr>
               <tr><td>pronouns</td><td>string | null</td><td class="req-no">no</td><td>Free text — no enum because every app uses free text.</td></tr>
-              <tr><td>description</td><td>string | null</td><td class="req-no">no</td><td>Bio. Markdown allowed if <code>extensions.openplural.markdown_fields</code> says so.</td></tr>
+              <tr><td>description</td><td>string | null</td><td class="req-no">no</td><td>Bio. Markdown allowed if <code>extensions.pluralport.markdown_fields</code> says so.</td></tr>
               <tr><td>age</td><td>string | null</td><td class="req-no">no</td><td>Free text (some apps store ranges, "ageless", etc.).</td></tr>
               <tr><td>birthday</td><td>Birthday | null</td><td class="req-no">no</td><td>See <a href="#birthday">Birthday</a>.</td></tr>
               <tr><td>color</td><td>HexColor | null</td><td class="req-no">no</td><td></td></tr>
@@ -389,7 +389,7 @@ nav_active: spec
               <tr><td>system_id</td><td>UUID</td><td class="req-yes">yes</td><td></td></tr>
               <tr><td>name</td><td>string</td><td class="req-yes">yes</td><td>Display name.</td></tr>
               <tr><td>field_type</td><td>string</td><td class="req-yes">yes</td><td>See enum below.</td></tr>
-              <tr><td>options</td><td>string[] | Record&lt;string, unknown&gt; | null</td><td class="req-no">no</td><td>For <code>select</code>/<code>multiselect</code>. Sheaf stores <code>options</code> as JSONB <code>dict | None</code>, so OpenPlural accepts either a string array or an object/record verbatim.</td></tr>
+              <tr><td>options</td><td>string[] | Record&lt;string, unknown&gt; | null</td><td class="req-no">no</td><td>For <code>select</code>/<code>multiselect</code>. Sheaf stores <code>options</code> as JSONB <code>dict | None</code>, so PluralPort accepts either a string array or an object/record verbatim.</td></tr>
               <tr><td>supports_markdown</td><td>boolean</td><td class="req-no">no</td><td>Hint to importers for <code>text</code>/<code>markdown</code> rendering.</td></tr>
               <tr><td>date_precision</td><td>"day" | "month" | "year" | "month_day" | null</td><td class="req-no">no</td><td>For <code>date</code>/<code>date_range</code> types. Prism: <code>customFields.datePrecision</code>.</td></tr>
               <tr><td>sort_order</td><td>number | null</td><td class="req-no">no</td><td>Sheaf: <code>custom_fields[].order</code>.</td></tr>
@@ -407,7 +407,7 @@ nav_active: spec
 
       <article class="record" id="customfieldvalue">
         <h3>CustomFieldValue</h3>
-        <p class="record-blurb">A single value for one definition + one subject. Sheaf nests these inside the definition; OpenPlural keeps them in a sibling array for normalization.</p>
+        <p class="record-blurb">A single value for one definition + one subject. Sheaf nests these inside the definition; PluralPort keeps them in a sibling array for normalization.</p>
         <div class="table-wrap">
           <table class="field-table">
             <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
