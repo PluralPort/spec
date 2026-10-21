@@ -401,8 +401,28 @@ nav_active: spec
         </div>
         <div class="enum-sidebar">
           <b>Recommended <code>field_type</code> values</b>
-          <code>"text" | "markdown" | "number" | "boolean" | "color" | "date" | "date_range" | "timestamp" | "month" | "year" | "month_year" | "month_day" | "select" | "multiselect" | "json"</code>
+          <code>"text" | "markdown" | "number" | "boolean" | "color" | "date" | "date_range" | "timestamp" | "month" | "year" | "month_year" | "month_day" | "select" | "multiselect" | "range" | "json"</code>
+          <p style="margin: 8px 0 0; font-size: 0.85rem;"><span class="draft">v0.2</span><code>range</code> is a bounded number (slider, scale, star rating) — see the options schema below. Not yet valid under v0.1.</p>
         </div>
+      </article>
+
+      <article class="record mt-24" id="customfieldrange">
+        <h3>Range options <span class="draft">v0.2</span></h3>
+        <p class="record-blurb">The shape of <code>CustomFieldDefinition.options</code> when <code>field_type</code> is <code>"range"</code>: a number within fixed bounds, usually rendered as a slider — a mood scale, a star rating, a bounded measurement. Proposed because Sheaf and Prism both ship this natively today under different names (<code>slider</code>, and <code>slider</code>/<code>scale</code>), and the format itself carries no shared representation for it — Sheaf's PluralPort importer recovers a Prism slider only via a per-app bridge into its own translator, explicitly marked for deletion once this lands.</p>
+        <div class="table-wrap">
+          <table class="field-table">
+            <thead><tr><th>Key</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>min</td><td>number</td><td class="req-yes">yes</td><td>Lower bound, inclusive.</td></tr>
+              <tr><td>max</td><td>number</td><td class="req-yes">yes</td><td>Upper bound, inclusive. Must exceed <code>min</code>.</td></tr>
+              <tr><td>step</td><td>number | null</td><td class="req-no">no</td><td>Granularity hint for a control, not a storage constraint. Importers must accept a value off the step grid.</td></tr>
+              <tr><td>unit</td><td>string | null</td><td class="req-no">no</td><td>Short display suffix (<code>"cm"</code>, <code>"%"</code>). Recommended cap 12 characters.</td></tr>
+              <tr><td>labels</td><td>{ left, center, right } of string | null</td><td class="req-no">no</td><td>What the ends and middle of the track mean. Recommended cap 50 characters each.</td></tr>
+              <tr><td>gradient</td><td>string[] | null</td><td class="req-no">no</td><td>2 to 8 <code>#RRGGBB</code> colors, left to right. Presentational only; importers without a gradient drop it with a warning rather than failing.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="record-blurb" style="margin-top: 10px;"><code>CustomFieldValue.value</code> for a <code>range</code> field is a JSON number within <code>[min, max]</code>. Importers should clamp an out-of-range value to the nearest bound and warn (<code>range_value_clamped</code>) rather than drop it — a value slightly outside the range after the definition changed is still the user's answer.</p>
       </article>
 
       <article class="record" id="customfieldvalue">
@@ -416,7 +436,7 @@ nav_active: spec
               <tr><td>field_id</td><td>UUID</td><td class="req-yes">yes</td><td>References <code>custom_fields[].id</code>.</td></tr>
               <tr><td>subject_type</td><td>"member" | "system"</td><td class="req-yes">yes</td><td>For v0.1, only members and the system itself. Future expansion possible.</td></tr>
               <tr><td>subject_id</td><td>UUID</td><td class="req-yes">yes</td><td></td></tr>
-              <tr><td>value</td><td>unknown</td><td class="req-yes">yes</td><td>Type matches the field's <code>field_type</code>. For <code>multiselect</code> use a string array; for <code>date_range</code> use <code>{ start, end }</code>; for <code>json</code> use the original payload.</td></tr>
+              <tr><td>value</td><td>unknown</td><td class="req-yes">yes</td><td>Type matches the field's <code>field_type</code>. For <code>multiselect</code> use a string array; for <code>date_range</code> use <code>{ start, end }</code>; for <code>range</code> (v0.2) use a JSON number within <code>[min, max]</code>; for <code>json</code> use the original payload.</td></tr>
               <tr><td>source_refs</td><td>SourceRef[]</td><td class="req-no">no</td><td></td></tr>
               <tr><td>extensions</td><td>Record&lt;string, unknown&gt;</td><td class="req-no">no</td><td></td></tr>
             </tbody>
