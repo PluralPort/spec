@@ -54,6 +54,15 @@ This repo intentionally starts with documentation only. A JSON Schema, fixture s
 
 Issues and PRs are welcome — especially research corrections from app maintainers, missing fields, schema inconsistencies, and shape proposals for future modules. `docs/openplural-proposal.md` is the working document for v0.1.
 
+This repo publishes straight off `main` — whatever's on `main` is what `pluralport.github.io/spec` renders. That's fine for the current, shipped version, but it means a merged proposal for a *future* version would be "canonical" the moment it lands, before that version is actually settled or released.
+
+So:
+
+- **Fixes and corrections to the current published version** (typos, factual research corrections, clarifying existing wording) — PR against `main` as usual.
+- **Proposals that add or change fields, records, or modules for a future version** — PR against `next` instead. `next` is where those accumulate and get argued about without affecting the live site. It only merges into `main` when that version is actually cut.
+
+If you're not sure which one your change is, open against `next` — worst case it's an easy fast-forward into `main` later.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
