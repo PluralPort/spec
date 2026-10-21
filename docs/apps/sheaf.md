@@ -289,32 +289,17 @@ That means Sheaf now has two distinct portability surfaces:
 
 ## Imports
 
-Sheaf has:
+Imports run through an async job runner (`POST /v1/imports/file`, polled for status). Sheaf ships importers for its own export, an export-with-images archive, and several foreign formats: PluralKit (file and API), Tupperbox, Simply Plural, PluralSpace, Prism, Ampersand, and OpenPlural.
 
-- A Simply Plural import service.
-- A Sheaf import service for its own export format.
+The native self-importer has caught up to export v2. It accepts `version` `"1"` or `"2"` and round-trips the full export, including the data an earlier snapshot of this page noted it could not:
 
-But the current self-import path has not caught up to export v2 yet:
+- system profile plus preferences (`date_format`, `replace_fronts_default`, `coalesce_contiguous_fronts`, `delete_confirmation`) and the `safety` / `retention` blocks.
+- members, fronts, groups, tags, custom fields and values.
+- journals and content revisions.
+- board messages and polls (with their audit events).
+- reminders and the watch-token / notification-channel config.
 
-- `sheaf/api/v1/sheaf_import.py` still rejects any file whose `version` is not `"1"`.
-- `sheaf/services/sheaf_import.py` only restores:
-  - basic system profile fields (`name`, `description`, `tag`, `color`, `privacy`).
-  - members.
-  - fronts.
-  - groups.
-  - tags.
-  - custom fields and values.
-
-It does **not** currently import v2-only data such as:
-
-- system preferences (`date_format`, `replace_fronts_default`, `delete_confirmation`).
-- `safety` / `retention`.
-- journals.
-- revisions.
-- watch tokens / channels.
-- uploaded-file inventory.
-
-So the upstream changelog's "re-importable" claim is ahead of the checked-in parser at this snapshot.
+Re-import is idempotent: members dedupe against the target roster, everything else dedupes by preserved source timestamps, and a chosen conflict strategy decides skip / update / create. Every importer enforces a tier member cap, routes decoded JSON through a json-bomb-guarded loader, bounds decompressed archive size, and normalises foreign avatar URLs through the same policy gate the create API uses.
 
 ## Import/Interoperability Notes
 
@@ -337,4 +322,19 @@ The remaining gaps are not all the same kind:
 - `uploaded_files[]` in sync JSON is inventory-only metadata, not enough by itself to emit self-contained OpenPlural `assets[]`.
 - The async zip is the better converter target when image portability matters, because it actually includes the `images/<key>` blobs referenced by journal `image_keys`.
 
-It also shows a useful implementation boundary: exporter coverage has moved ahead of importer coverage. OpenPlural conformance should test actual exported and imported modules separately, not assume round-trip parity inside the source app.
+OpenPlural conformance should still test exported and imported modules separately rather than assuming round-trip parity inside any one app, but in Sheaf's case the importer now covers the same surfaces the exporter does.
+
+## OpenPlural support
+
+Sheaf ships a native OpenPlural v0.1 exporter and importer (it is one of the format's founding adopters).
+
+Export has two shapes:
+
+- Sync `GET /v1/export?format=openplural`: a single JSON envelope with uri-only `assets` (no bytes), emitting an `asset_uri_only` warning.
+- An async `.openplural.zip` bundle (`openplural.json` plus `assets/<key>` blobs) for image portability.
+
+Both stamp `producer` (`app`, `app_id: "sheaf"`, `app_version`, `exporter_version`) and append an `extensions.sheaf.lineage[]` entry per export. `pluralkit_id` is emitted as a `source_ref`. Everything Sheaf has that v0.1 has no core record for (the `note` fields, polls, reminders, revisions, notification config, System Safety settings, member emoji / quick-switch pin, and the board-post reply pointer) is preserved under the registered `sheaf` namespace, so a Sheaf round-trip is lossless.
+
+Import (`source=openplural_file`) accepts either shape, sniffing the zip magic, and has a preview endpoint. It reads `front_periods` and also derives intervals from `front_events` (the switch-log shape), so an event-log file imports its fronting history. It rejects any unfamiliar `openplural_version`.
+
+So Sheaf is not a lossy hop for files from other apps, data it cannot model (other apps' `extensions` namespaces, the `chat` and `relationships` modules, `front_comments`, and non-tag taxonomy) is preserved on import and re-merged into the next OpenPlural export. Per-record foreign `extensions` are the one tier not yet preserved (they need stable per-record identity); the importer reports them rather than dropping them silently. This is the baseline of the extensions-preservation contract discussed in the issue tracker.
