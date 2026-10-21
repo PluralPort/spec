@@ -9,6 +9,8 @@ a portable plurality-system data format.
 
 The initial goal is to compare existing app data shapes and identify a smallest useful common model that app developers can export/import once instead of writing pairwise converters for every other app.
 
+The published version is v0.1. Proposals for the next version go against the `next` branch, not `main` — see [Contributing](#contributing).
+
 ## Specification Site
 
 The rendered specification is at <https://pluralport.github.io/spec/> (built
@@ -21,14 +23,14 @@ from the `.md` files in this repository via GitHub Pages):
   - [Fronting](https://pluralport.github.io/spec/spec-fronting.html) — periods, events, comments, assignments
   - [Modules & contract](https://pluralport.github.io/spec/spec-modules.html) — chat, boards, optional modules, importer contract
 - [Adoption guide](https://pluralport.github.io/spec/adopt.html) — Prism + Sheaf mapping tables, maintainer guidance
-- [Proposal](https://pluralport.github.io/spec/proposal.html) — the v0.1 proposal as a single page
+- [Proposal](https://pluralport.github.io/spec/proposal.html) — v0.1 as a single page
 
 ## Reference
 
 Source markdown for the same content (rendered on GitHub):
 
 - [Feature matrix](docs/feature-matrix.md)
-- [OpenPlural v0.1 proposal](docs/openplural-proposal.md)
+- [v0.1 spec, single page](docs/openplural-proposal.md)
 - Per-page sources at the repo root: `index.md`, `apps.md`, `spec.md`, `spec-records.md`, `spec-fronting.md`, `spec-modules.md`, `adopt.md`
 
 ## App Research
@@ -52,7 +54,7 @@ This repo intentionally starts with documentation only. A JSON Schema, fixture s
 
 ## Contributing
 
-Issues and PRs are welcome — especially research corrections from app maintainers, missing fields, schema inconsistencies, and shape proposals for future modules. `docs/openplural-proposal.md` is the working document for v0.1.
+Issues and PRs are welcome — especially research corrections from app maintainers, missing fields, schema inconsistencies, and shape proposals for future modules. `docs/openplural-proposal.md` has v0.1 as a single page; it predates the per-page split and is kept as a condensed read, not a moving draft.
 
 This repo publishes straight off `main` — whatever's on `main` is what `pluralport.github.io/spec` renders. That's fine for the current, shipped version, but it means a merged proposal for a *future* version would be "canonical" the moment it lands, before that version is actually settled or released.
 
