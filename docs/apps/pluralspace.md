@@ -6,13 +6,17 @@ Sources:
 
 - Website: https://pluralspace.app/
 - Two sample GDPR exports inspected, generated 2026-05-03 (mock data). The second was produced after creating groups in the app to capture group records.
+- One production OpenPlural export inspected, generated 2026-07-05. The sample contained useful systems/members/fronts/notes/chat/polls/relationships data but no asset bytes, no `assets[]` records, no custom-field values, and no board posts.
+- Public production client inspected 2026-08-12. It exposes OpenPlural export and an OpenPlural import workflow for ZIP or bare JSON, but the closed backend and field-level importer behavior were not inspected.
 - Maintainer implementation notes shared 2026-05-06 (stack/runtime and fronting-storage overview). These are useful architectural context, but they are not a published schema or source audit.
 
 PluralSpace is a separate app from Plural Star, despite a shared naming history: the React Native app formerly called "Plural Space" rebranded to "Plural Star", while the unrelated web app at `pluralspace.app` kept the "PluralSpace" (no space) name. They are different products with different data models and should be treated as distinct apps for OpenPlural purposes. See [`plural-star.md`](plural-star.md) for the Plural Star format.
 
-The current export is framed as a regulatory data-portability dump: the manifest cites GDPR Article 15 (Right of Access) and Article 20 (Right to Data Portability). This isn't the same affordance as a round-trippable backup. The ZIP and `data.json` shape documented below is reconstructed from inspected sample exports — there's no published schema for it.
+The original inspected export was framed as a regulatory data-portability dump: the manifest cites GDPR Article 15 (Right of Access) and Article 20 (Right to Data Portability). This isn't the same affordance as a round-trippable backup. The ZIP and `data.json` shape documented below is reconstructed from inspected sample exports — there's no published schema for it.
 
-The public [developers page](https://pluralspace.app/developers) lists a REST API as "Coming Soon" and "actively in development" and shows a preview, but the API isn't a usable surface yet. If and when it ships it'd likely be a better target for an OpenPlural converter than the GDPR export, but that's speculative until it's public. The research below should be read as a snapshot of the GDPR export specifically.
+PluralSpace has since shipped an OpenPlural export and a user-facing OpenPlural importer. The first export fixture was still too sparse for media, custom-field values, board posts, and several module edge cases, and the importer backend is closed. Treat these as production compatibility evidence, not as a complete schema or proof of every round-trip behavior.
+
+The public [developers page](https://pluralspace.app/developers) still lists the general REST API as "Coming Soon" and "actively in development". That API may eventually help direct integrations, but it is no longer a prerequisite for portability now that the native OpenPlural export and import surfaces exist.
 
 ## Runtime And Deployment Context
 
@@ -28,7 +32,75 @@ Per maintainer notes shared 2026-05-06, PluralSpace's current stack is:
 
 This doesn't change the export mapping directly, but it is useful context for future API/realtime documentation: the app is a Laravel/Postgres system with queue-backed notifications and websocket-delivered UI updates, not a local-only client.
 
-## Export Shape
+## Current OpenPlural Export Shape
+
+The 2026-07-05 production OpenPlural export ZIP contained:
+
+```
+manifest.json
+media/            # empty in inspected sample
+openplural.json
+```
+
+`manifest.json` retained the GDPR framing and used `format_version: "0.1"`.
+
+`openplural.json` was a root OpenPlural envelope with:
+
+- `openplural_version: "0.1"`.
+- `producer.app: "PluralSpace"`, `producer.app_id: "pluralspace"`, `producer.exporter_version: "0.1"`.
+- Populated core arrays for `systems`, `members`, `groups`, `group_memberships`, `taxonomy_terms`, `taxonomy_assignments`, `custom_fields`, `front_periods`, and `notes`.
+- Optional `chat`, `relationships`, `polls`, and `boards` objects.
+- `assets: []` and no `assets/` ZIP directory. The ZIP used `media/`, but the directory was empty, so this sample does not prove how PluralSpace intends bundled media references to resolve.
+
+Counts in the inspected file:
+
+| Section | Count |
+| --- | ---: |
+| `systems` | 1 |
+| `members` | 9 |
+| `groups` | 2 |
+| `group_memberships` | 2 |
+| `taxonomy_terms` | 17 |
+| `taxonomy_assignments` | 23 |
+| `custom_fields` | 4 |
+| `custom_field_values` | 0 |
+| `front_periods` | 9 |
+| `notes` | 6 |
+| `assets` | 0 |
+| `chat.conversations` | 3 |
+| `chat.messages` | 7 |
+| `boards.posts` | 0 |
+| `polls.polls` | 1 |
+| `relationships.edges` | 8 |
+| `relationships.types` | 0 |
+
+Conformance notes from this fixture:
+
+- The bundle uses `media/`, not the Sheaf-style `assets/`; because `assets[]` is empty, this should only inform importer tolerance, not the canonical exporter convention.
+- One of the two groups has a non-null `parent_group_id` referencing the other group, so the fixture contains an observed nested-group relationship rather than only an unused hierarchy field.
+- Many records emit `extensions: []` instead of the spec's `Record<string, unknown>` object, and some object extensions use un-namespaced keys such as `is_multiple` or a compound key like `pluralspace:moods`. Future PluralSpace exports should use `extensions.pluralspace.*`.
+- `relationships.edges[]` references `type_id` values, but `relationships.types[]` is empty. Importers should preserve those edges with a dangling-reference warning rather than inventing type definitions.
+- The export itself warns that its `polls[]` shape follows PluralSpace's interpretation because the OpenPlural polls module is not field-specified yet.
+- `capabilities.modules` lists only optional modules (`chat`, `relationships`, `polls`, `boards`) even though core arrays are populated. The spec now says exporters should list every populated section, while importers should still handle data present in the file.
+
+## Current OpenPlural Import Surface
+
+The production client inspected 2026-08-12 exposes "Import from OpenPlural file" in the system import flow. Its user-facing contract is:
+
+- Upload either a `.zip` bundle or bare `.json` / `openplural.json`.
+- ZIP is presented as the media-capable path; bare JSON is described as data-only.
+- The upload copy advertises OpenPlural v0.1 and a 150 MB limit.
+- Default import sections are custom fields, members, groups, front history, notes, relationships, chat, polls, boards, and assets.
+- The shared import flow provides preview, asynchronous processing/progress, completion/error state, and past-import history.
+
+This proves that PluralSpace has shipped a user-visible OpenPlural import path, not how every record is translated. Without backend source or a completed import fixture, the following remain unverified:
+
+- Whether bundled bytes resolve from canonical `Asset.bundle_path`, PluralSpace's provisional `media/`, Sheaf's `extensions.sheaf.bundle_path`, or some combination.
+- Whether foreign file-level and per-record extensions are preserved and re-emitted.
+- How dangling relationship types, provisional polls, missing asset files, unsafe paths, and unsupported modules are reported.
+- Whether imports round-trip back through PluralSpace's exporter without semantic loss.
+
+## GDPR Export Shape
 
 The export is a ZIP containing:
 
@@ -260,7 +332,9 @@ Both collections were empty arrays in both inspected exports.
 - `thoughts` isn't documented elsewhere; schema unknown. The name suggests a microblog-style feature.
 - `media_files` is presumably the registry that `avatar_path`/`avatar_media_path` references resolve against, plus journal/chat attachments. The empty `media/` ZIP directory and empty `media_files[]` array are consistent in the inspected exports.
 
-## Mapping To OpenPlural V0.1
+## Mapping The GDPR Export To OpenPlural V0.1
+
+The mapping below describes the older `manifest.json` + `data.json` GDPR export, not the newer native OpenPlural export.
 
 ### Clean mappings
 
@@ -284,7 +358,7 @@ Both collections were empty arrays in both inspected exports.
 
 3. **`role` as array of free-text strings.** OpenPlural recommends taxonomy terms with `kind: "role"` rather than a privileged member field. Each entry in `role[]` becomes a `taxonomy_terms` record (deduped per system) plus a `taxonomy_assignments` row pointing at the member. Free-text means terms must be created lazily from the values seen.
 
-4. **Group hierarchy is lost in the GDPR export.** PluralSpace supports nested groups in the app, but the GDPR export emits a flat `member_groups[]` with no `parent_id` field. An OpenPlural converter built against the GDPR export can't reconstruct the tree. The forthcoming API/export is the right path here, not a converter workaround — flagged with maintainers 2026-05-03.
+4. **Group hierarchy is lost in the GDPR export.** PluralSpace supports nested groups in the app, but the GDPR export emits a flat `member_groups[]` with no `parent_id` field. An OpenPlural converter built against the GDPR export can't reconstruct the tree. The newer OpenPlural export does include `groups[].parent_group_id`, so this is a GDPR-export limitation rather than a PluralSpace model limitation.
 
 5. **Group membership uses names, not IDs.** `members[].groups[]` stores group **names**. Group records carry their own `members[]` with member IDs. An OpenPlural converter should prefer the group → member side (which uses IDs) for `group_memberships[]`, and treat the member-side names as a denormalized cross-check. If the two disagree (e.g. mid-rename), the ID-side wins.
 
@@ -306,10 +380,11 @@ Both collections were empty arrays in both inspected exports.
 
 ### Recommendation
 
-PluralSpace is well-served by the proposed v0.1 core plus the planned chat and polls modules. The mapping is mostly mechanical apart from front-row collapsing and the `role` array → taxonomy expansion. Open questions worth flagging:
+PluralSpace is well-served by the proposed v0.1 core plus the planned chat and polls modules. The mapping is mostly mechanical apart from front-row collapsing and the `role` array → taxonomy expansion in the older GDPR shape. Open questions worth flagging:
 
-- **Group hierarchy** isn't in the GDPR export. The forthcoming API is the right path; building a converter against the export today would bake in a loss that goes away on its own.
+- **Group hierarchy** isn't in the GDPR export, but is present in the newer OpenPlural export via `parent_group_id`.
 - **Identity-by-name** in chat messages, member→group pointers, `created_by_member`, and journal `members[]` is fragile. `source_refs` plus extension-preserved names mitigate it for converters built against the GDPR export; the API surface is likely to be more consistent.
 - **Unverified shapes** for custom fronts, populated custom field values, and `thoughts` — these need either a fully-populated GDPR sample or the API documentation to pin down.
+- **OpenPlural media and module completeness** still need a richer OpenPlural fixture: the inspected production file had empty `assets[]`, empty `media/`, empty `boards.posts[]`, zero `custom_field_values`, and relationship edges without type records.
 
 PluralSpace also reinforces an OpenPlural design choice independent of which surface a converter targets: documenting `format_version` and producer at the envelope level is necessary but not sufficient. A `capabilities.modules` declaration and a `warnings[]` block at export time would make the difference between a GDPR dump and a portability-grade export explicit to importers.

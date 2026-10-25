@@ -43,10 +43,11 @@ Source markdown for the same content (rendered on GitHub):
 - [Lighthouse](docs/apps/lighthouse.md)
 - [OpenSelves](docs/apps/openselves.md)
 - [Ampersand](docs/apps/ampersand.md)
+- [Tupperbox](docs/apps/tupperbox.md)
 
 ## Scope Notes
 
-This is source-backed where possible. PluralSpace is the one exception: its server is closed-source, so its research is based on inspected GDPR exports rather than source.
+This is source-backed where possible. PluralSpace is the main exception: its server is closed-source, so its research is based on inspected exports, maintainer notes, and the shipped public client.
 
 This repo intentionally starts with documentation only. A JSON Schema, fixture set, conformance tests, and reference converters are natural next steps once the model is agreed.
 
