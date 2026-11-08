@@ -4,7 +4,7 @@
 
 Sources:
 
-- Repository: https://github.com/FreckleQueens/OpenSelves
+- Repository: https://codeberg.org/FreckleQueens/OpenSelves/
 
 ## Storage And Sync Shape
 
