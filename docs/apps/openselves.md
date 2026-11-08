@@ -1,90 +1,69 @@
 # OpenSelves
 
+OpenSelves Version: ^0.7.0
+
 ## Source Status
 
 Sources:
 
-- Repository: https://github.com/FreckleQueens/OpenSelves
+- Repository: https://codeberg.org/FreckleQueens/OpenSelves/
 
 ## Storage And Sync Shape
 
 OpenSelves is a smaller offline-first app using:
 
+- [The Willow data model](https://willowprotocol.org/specs/data-model/#data_model).
 - Browser IndexedDB on the client.
-- Drizzle/PostgreSQL schema in `common/src/db/schema`.
-- Server sync endpoints based on operation logs.
+- Drizzle/PostgreSQL schema in `server/src/db/schema`.
+- Server sync endpoints for pushing and pulling Willow entries.
+- CUID2 to generate IDs.
 
-No general export file was found in the inspected source. The portable shape is therefore inferred from database and sync DTOs.
+Each datapoint (i.e. a member's name, a member's description...) has its own entry. Entry paths follow the format `/{collection}/{record_id}/{field_name}`, for example `/members/w8emnbh431o3hvkeew4vbp01/name`.
+
+Paths and payloads are end-to-end encrypted.
 
 ## Records
 
-### Users
+### Systems
 
-`users`:
-
-- `id`, `email`, `passwordHash`.
-- Created/updated timestamps.
-
-There is no separate system profile table in the checked schema snapshot.
+Currently, only a single system is supported per-profile. There can be many profiles but there is no interaction between profiles.Profile names are local-only; they are not synced accross clients.
 
 ### Members
 
 `members`:
 
-- Composite primary key: `userId`, `id`.
-- `name`, `pronouns`, `description`.
+- `id`.
+- `name`.
+- Optional `pronouns`, optional `description`, optional `color`.
 - Optional `image`.
-- `isArchived`, optional `archivedReason`.
-- `createdAt`, `updatedAt`.
-
-IDs are generated with CUID2.
+- Optional `isArchived` (default: `false`), optional `archivedReason`.
+- `createdAt`.
 
 ### Fronts
 
 `fronts`:
 
-- Composite primary key: `userId`, `id`.
-- `memberId` foreign key.
-- `startedAt`, optional `endedAt`.
+- `id`.
+- Optional `memberId` foreign key (default: `null`).
+- `startedAt`, optional `endedAt` (default: `null`).
 - Optional `note`.
-- `createdAt`, `updatedAt`.
+- `createdAt`.
 
 This is per-member interval fronting. There is no many-to-many front record; co-fronting would be represented as overlapping rows if supported by UI/workflows.
 
-### Logs
+### Sync
 
-`logs` supports offline sync:
+Client pushes pending entries to `/sync/push` and saves current timestamp on success.
 
-- Composite primary key: `userId`, `id`.
-- Optional `memberId` or `frontId`.
-- `operationType`: `create`, `update`, `delete`.
-- `data` JSON for create/update.
-- `deletedId` for deletes.
-- `executedAt`, `pushedAt`.
+Client pulls new entries resuming from a server-provided timestamp from `/sync/pull` and saves the new entries to IndexedDB as well as the new timestamp.
 
-Checks enforce that create/update logs reference either one member or one front and include data, while delete logs reference a deleted ID and no data.
-
-### Sync DTOs
-
-Client pushes pending logs to `/sync/push`. Create/update DTOs validate:
-
-Members:
-
-- `name`, `pronouns`, `description`.
-- Optional image URL or data URI.
-- `isArchived`, `archivedReason`.
-
-Fronts:
-
-- `memberId`, `startedAt`, `endedAt`, `note`.
-
-Client pulls logs since a timestamp from `/sync/pull` and applies them to IndexedDB.
+In both directions, the data format is a binary octet stream that is the encoding of the entries in the [Drop format](https://willowprotocol.org/specs/drop-format/#willow_drop_format) (see "Storage And Sync Shape").
 
 ## Import/Interoperability Notes
 
 OpenSelves is useful as a minimal target:
 
-- Member profile fields are required and simple.
+- Member profile fields are simple, only `id`, `name` and `createdAt` are required.
 - Fronting is one member per interval.
-- There are no groups, custom fields, journals, polls, chat, or system profile in the inspected schema.
+- There are no groups, custom fields, journals, polls, chat, or system profile (besides profile names).
 - OpenPlural should allow importing a rich file into a simpler app with a clear `losses` report, not require every module to be implemented.
