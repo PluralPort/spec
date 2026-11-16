@@ -448,7 +448,7 @@ The following modules should be specified after core v0.1:
 
 ## Scope And Consent
 
-An PluralPort file can carry highly sensitive data — Simply Plural exports include every Mongo collection except accounts; Lighthouse exports BDA plans, inner worlds, rules, journals, and more. Producers should be explicit about what's included and consider per-module scoping or redaction so users can opt out of categories they don't want shared. A future spec version may formalize consent metadata; for now, treat the file as a whole-database dump unless the producer documents otherwise.
+A PluralPort file can carry highly sensitive data — Simply Plural exports include every Mongo collection except accounts; Lighthouse exports BDA plans, inner worlds, rules, journals, and more. Producers should be explicit about what's included and consider per-module scoping or redaction so users can opt out of categories they don't want shared. A future spec version may formalize consent metadata; for now, treat the file as a whole-database dump unless the producer documents otherwise.
 
 ## Loss Reporting
 
