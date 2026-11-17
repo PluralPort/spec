@@ -1,6 +1,6 @@
 # Feature Matrix
 
-This table compares the researched apps at the level OpenPlural needs for portability. "Yes" means the feature is present in an exported/API shape or strongly supported by source. "Partial" means the app has some related data, but not enough for a full portable mapping. "Unknown" means public docs/source didn't expose the shape.
+This table compares the researched apps at the level PluralPort needs for portability. "Yes" means the feature is present in an exported/API shape or strongly supported by source. "Partial" means the app has some related data, but not enough for a full portable mapping. "Unknown" means public docs/source didn't expose the shape.
 
 | App | Source status | Export/API shape | System profile | Members | Fronting | Groups/tags | Custom fields | Journals/notes | Chat/messages | Polls | Reminders/habits | Assets/media | Privacy/sharing |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -18,7 +18,7 @@ This table compares the researched apps at the level OpenPlural needs for portab
 
 ## Fronting Models
 
-| App | Model | OpenPlural implication |
+| App | Model | PluralPort implication |
 | --- | --- | --- |
 | Prism | Overlapping per-member intervals. | Need interval records and co-front inference. |
 | Simply Plural | Overlapping per-member/custom-status intervals. | Need custom front/status assignment support. |

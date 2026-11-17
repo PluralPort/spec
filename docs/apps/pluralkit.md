@@ -128,4 +128,4 @@ PluralKit is narrower than Simply Plural or Prism but has strong identity/proxy 
 - Preserve both short IDs and UUIDs.
 - Preserve proxy tags and privacy settings.
 - Support event-based front history or an event-to-interval transform.
-- Groups are flat in PluralKit, but OpenPlural should support membership arrays and optional hierarchy for other apps.
+- Groups are flat in PluralKit, but PluralPort should support membership arrays and optional hierarchy for other apps.

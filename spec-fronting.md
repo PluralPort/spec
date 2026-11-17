@@ -1,5 +1,5 @@
 ---
-title: "OpenPlural Spec — Fronting"
+title: "PluralPort Spec — Fronting"
 nav_active: spec
 ---
 
@@ -30,7 +30,7 @@ nav_active: spec
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Source pattern</th><th>Examples</th><th>Best OpenPlural target</th></tr></thead>
+          <thead><tr><th>Source pattern</th><th>Examples</th><th>Best PluralPort target</th></tr></thead>
           <tbody>
             <tr><td>Switch events</td><td>PluralKit</td><td><code>front_events[]</code> directly. Periods can be derived from adjacent events if needed.</td></tr>
             <tr><td>Per-member intervals</td><td>Prism, Simply Plural, OpenSelves, Ampersand, PluralSpace</td><td>One <code>FrontPeriod</code> per row with a single <code>FrontAssignment</code>. PluralSpace stores co-fronting as multiple rows sharing identical <code>started_at</code>/<code>ended_at</code> — group by timestamps to reconstruct the period.</td></tr>
