@@ -24,7 +24,7 @@ Octocon is a distributed Elixir monolith. The backend is split into:
 
 Schemas use Ecto with `Exandra` for ScyllaDB. Most records are keyed by a 7-character lowercase user ID (`^[a-z]{7}$`) plus a per-record ID (UUID for tags/journals/polls/fronts, small integer up to 32,767 for alters).
 
-A user-facing export exists today only through the Discord bot: `lib/octocon_discord/commands/export.ex` exposes a slash command that calls `Octocon.Accounts.gather_export_data/1` and then either `format_pk_export/1` (PluralKit-compatible v2 datafile) or `format_full_export/1` (Octocon-native JSON, currently not consumed by any other platform). The "full" variant is the closest thing to a portable Octocon shape and is what an PluralPort importer would target.
+A user-facing export exists today only through the Discord bot: `lib/octocon_discord/commands/export.ex` exposes a slash command that calls `Octocon.Accounts.gather_export_data/1` and then either `format_pk_export/1` (PluralKit-compatible v2 datafile) or `format_full_export/1` (Octocon-native JSON, currently not consumed by any other platform). The "full" variant is the closest thing to a portable Octocon shape and is what a PluralPort importer would target.
 
 ## Records
 
@@ -150,7 +150,7 @@ Gaps versus the on-disk model:
 - Alters drop `security_level`, `untracked`, `archived`, `pinned`, `alias`, `last_fronted`, `extra_images`, timestamps.
 - No system-tag / autoproxy info.
 
-The PK export (`format_pk_export/1`) is a PluralKit datafile v2: `name`, `description`, `avatar_url`, `members[]` (with `proxy_tags` parsed from `discord_proxies`), `groups[]` (built from tags, indexed by position), `switches: []` (always empty — switch history isn't ported). It exists for one-way migration to PluralKit, not as an PluralPort source.
+The PK export (`format_pk_export/1`) is a PluralKit datafile v2: `name`, `description`, `avatar_url`, `members[]` (with `proxy_tags` parsed from `discord_proxies`), `groups[]` (built from tags, indexed by position), `switches: []` (always empty — switch history isn't ported). It exists for one-way migration to PluralKit, not as a PluralPort source.
 
 ## Imports
 
